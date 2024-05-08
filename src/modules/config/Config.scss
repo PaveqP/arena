@@ -1,0 +1,60 @@
+.config{
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+
+    &__title{
+        font-size: 24px;
+        line-height: 30px;
+        font-weight: 400;
+        text-align: center;
+    }
+
+    &__upload{
+
+    }
+
+    &__manager{
+        border: 2px solid #CE68E8;
+        border-radius: 10px;
+        padding: 30px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    &__request{
+        background-color: #CE68E8;
+        color: white;
+        padding: 5px 10px;
+        font-size: 20px;
+        border-radius: 7px;
+    }
+
+    &__request:hover{
+        scale: 1.05;
+        transition: 0.3s;
+    }
+
+    &__request:not(:hover){
+        scale: 1;
+        transition: 0.3s;
+    }
+
+    &__bad{
+        background-color: red;
+        border-radius: 7px;
+        padding: 10px;
+        color: white;
+    }
+
+    &__ok{
+        background-color: #26A61B;
+        border-radius: 7px;
+        padding: 10px;
+        color: white;
+    }
+}
