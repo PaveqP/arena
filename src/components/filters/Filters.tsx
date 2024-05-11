@@ -4,6 +4,7 @@ import { Charts } from '../../modules'
 import axios from 'axios'
 import { useActions } from '../../hooks/useActions'
 import { useTypedSelector } from '../../hooks/useTypedSelector'
+import { getPlayerCoordinates } from '../../api/player/PlayersData'
 
 // interface IFilter{
 //     setSelectedFilter: (selectedFilter: any) => void,
@@ -12,6 +13,7 @@ import { useTypedSelector } from '../../hooks/useTypedSelector'
 const Filters: FC = () => {
 
     const filters = useTypedSelector(state => state.filters.filter)
+    const serverData = useTypedSelector(state => state.filters.data)
 
     const [teams, setTeams] = useState([])
     const [players, setPlayers] = useState([])
@@ -34,8 +36,35 @@ const Filters: FC = () => {
     }
 
     const handleSelectFilter = (type: string, value: string) => {
-        dispatch.addFilter({type, "value": value})
+        let prevType = filters.length > 0 && filters[0].type 
+        let prevFilters: Array<string> = filters.length > 0 ? [...filters[0].value] : []
+        let newFilters = []
+
+        // filters.length > 0 && filters[0].value.map((val) => {
+        if(serverData.some((elem) => elem.id === value))
+        {
+            dispatch.deleteData(value)
+        } 
+        else 
+        {
+            getPlayerCoordinates(value)
+        }
+
+        if (prevType !== type){
+            prevFilters = []
+        }
+
+        if (prevFilters.includes(value)){
+            newFilters = prevFilters.filter((val) => val !== value)
+        } else{
+            newFilters = [...prevFilters, value]
+        }
+
+        dispatch.addFilter({type, "value": newFilters})
     }
+
+    // console.log(filters[0].value)
+    console.log(serverData)
 
     useEffect(() => {
         getDataDetails()
@@ -71,7 +100,7 @@ const Filters: FC = () => {
                 {players.length > 0 ?
                 players.map((player: string) => (
                     <button 
-                        className={(filters[0] && filters[0].type === 'player' && filters[0].value === player) ? 'content-activeSelectButton' : 'content-selectButton'} 
+                        className={(filters[0] && filters[0].type === 'player' && filters[0].value.includes(player)) ? 'content-activeSelectButton' : 'content-selectButton'} 
                         onClick={() => handleSelectFilter('player', player)}
                     >
                         {player}
@@ -90,7 +119,7 @@ const Filters: FC = () => {
                 {polygons.length > 0 ?
                 polygons.map((polygon: string) => (
                     <button 
-                        className={(filters[0] && filters[0].type === 'polygon' && filters[0].value === polygon) ? 'content-activeSelectButton' : 'content-selectButton'} 
+                        className={(filters[0] && filters[0].type === 'polygon' && filters[0].value.includes(polygon)) ? 'content-activeSelectButton' : 'content-selectButton'} 
                         onClick={() => handleSelectFilter('polygon', polygon)}
                     >
                         {polygon}

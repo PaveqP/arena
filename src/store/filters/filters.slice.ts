@@ -2,12 +2,17 @@ import { createSlice } from "@reduxjs/toolkit";
 
 type filterType = {
     type: string,
-    value: string
+    value: Array<string>
+}
+
+type dataType = {
+    id: string,
+    data: []
 }
 
 const initialState = {
     filter: [] as Array<filterType>,
-    data: []
+    data: [] as Array<dataType>
 }
 
 export const filterSlice = createSlice({
@@ -18,7 +23,10 @@ export const filterSlice = createSlice({
             state.filter = [action.payload]
         },
         addData: (state, action) => {
-            state.data = action.payload
+            state.data.push(action.payload)
+        },
+        deleteData: (state, action) => {
+            state.data = state.data.filter((elem) => elem.id !== action.payload)
         }
     }
 })

@@ -13,6 +13,7 @@ import {
 } from 'chart.js';
 import { Chart } from 'react-chartjs-2';
 import { useTypedSelector } from '../../hooks/useTypedSelector';
+import { useActions } from '../../hooks/useActions';
 
 ChartJS.register(
   CategoryScale,
@@ -22,17 +23,6 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-
-const colors = [
-  'red',
-  'orange',
-  'yellow',
-  'lime',
-  'green',
-  'teal',
-  'blue',
-  'purple',
-];
 
 function createGradient(ctx: CanvasRenderingContext2D, area: ChartArea) {
   const colorStart = '#8C7DFE';
@@ -48,46 +38,37 @@ function createGradient(ctx: CanvasRenderingContext2D, area: ChartArea) {
   return gradient;
 }
 
-// interface ICharts{
-//   requestData: {
-//     type: string, 
-//     value: string
-//   }
-// }
-
-
 
 const Charts: FC= () => {
 
-  // const [coordinates, setCoordinates] = useState([])
-
   const filters = useTypedSelector(state => state.filters.filter)
   const serverData = useTypedSelector(state => state.filters.data)
+
+  const dispatch = useActions()
 
   const chartRef = useRef<ChartJS>(null);
   const [chartData, setChartData] = useState<ChartData<'bar'>>({
     datasets: [],
   });
 
-  const preparelabels: any = []
-  serverData.length > 0 && serverData.map((pair) => {
-    const ifFound = preparelabels.some((l: any) => l === pair[1])
-    if(!ifFound){
-      preparelabels.push(pair[1])
-    }
-  })
-  const labels = serverData.length > 0 && serverData.map((pair) => Math.floor(pair[0]))
+  const labels = serverData.length > 0 && serverData[0].data.map((pair) => Math.floor(pair[0]))
 
   console.log(serverData)
 
   const data = {
     labels,
-    datasets: [
-      {
-        label: 'Dataset 1',
-        data: serverData.length > 0 && serverData.map((pair) => Math.ceil(pair[1])),
-      },
-    ],
+    // datasets: [
+    //   {
+    //     // label: `${filters[0].type} ${filters[0].value}`,
+    //     label: 'test',
+    //     data: serverData.length > 0 && serverData.map((pair) => Math.ceil(pair[1])),
+    //   },
+    // ],
+    datasets: serverData.map((dataSet) => ({
+      label: dataSet.id,
+      data: dataSet.data.map((pair) =>  Math.ceil(pair[1])),
+      borderColor: `#${Math.floor(Math.random() * 16777215).toString(16)}`
+    }))
   };
 
   useEffect(() => {
@@ -100,8 +81,7 @@ const Charts: FC= () => {
     const chartData: any = {
       ...data,
       datasets: data.datasets.map(dataset => ({
-        ...dataset,
-        borderColor: createGradient(chart.ctx, chart.chartArea),
+        ...dataset
       })),
     };
 
@@ -110,7 +90,15 @@ const Charts: FC= () => {
 
 
   useEffect( () => {
-    filters[0] && getPlayerCoordinates(filters[0].value)
+    // console.log('called!', filters)
+    // filters.length > 0 && filters[0].value.map((val) => {
+    //   console.log(val)
+    //   if(serverData.some((elem) => elem.id === val)){
+    //     dispatch.deleteData(val)
+    //   }else{
+    //     getPlayerCoordinates(val)
+    //   }
+    // })
   }, [filters])
 
   return (
