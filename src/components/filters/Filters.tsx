@@ -4,7 +4,7 @@ import { Charts } from '../../modules'
 import axios from 'axios'
 import { useActions } from '../../hooks/useActions'
 import { useTypedSelector } from '../../hooks/useTypedSelector'
-import { getPlayerCoordinates } from '../../api/player/PlayersData'
+import { getPlayerCoordinates, getPlayerEvents } from '../../api/player/PlayersData'
 
 // interface IFilter{
 //     setSelectedFilter: (selectedFilter: any) => void,
@@ -13,12 +13,15 @@ import { getPlayerCoordinates } from '../../api/player/PlayersData'
 const Filters: FC = () => {
 
     const filters = useTypedSelector(state => state.filters.filter)
-    const serverData = useTypedSelector(state => state.filters.data)
+    const serverCoordinatesData = useTypedSelector(state => state.data.playerCoordsData)
+    const serverEventData = useTypedSelector(state => state.data.playerEventsData)
 
     const [teams, setTeams] = useState([])
     const [players, setPlayers] = useState([])
     const [polygons, setPolygons] = useState([])
     const [server, setServer] = useState('')
+
+    const [requestPlayerEvents, setRequestPlyaerEvents] = useState(false)
 
     const dispatch = useActions()
 
@@ -40,18 +43,32 @@ const Filters: FC = () => {
         let prevFilters: Array<string> = filters.length > 0 ? [...filters[0].value] : []
         let newFilters = []
 
-        // filters.length > 0 && filters[0].value.map((val) => {
-        if(serverData.some((elem) => elem.id === value))
-        {
-            dispatch.deleteData(value)
-        } 
-        else 
-        {
-            getPlayerCoordinates(value)
-        }
-
-        if (prevType !== type){
-            prevFilters = []
+        if (requestPlayerEvents){
+            if(serverEventData.some((elem) => elem.id === value))
+            {
+                dispatch.deleteEventsData(value)
+            } 
+            else 
+            {
+                getPlayerEvents(value)
+            }
+            
+            if (prevType !== type){
+                prevFilters = []
+            }
+        } else {
+            if(serverCoordinatesData.some((elem) => elem.id === value))
+            {
+                dispatch.deleteCoordinatesData(value)
+            } 
+            else 
+            {
+                getPlayerCoordinates(value)
+            }
+        
+            if (prevType !== type){
+                prevFilters = []
+            }
         }
 
         if (prevFilters.includes(value)){
@@ -63,12 +80,16 @@ const Filters: FC = () => {
         dispatch.addFilter({type, "value": newFilters})
     }
 
-    // console.log(filters[0].value)
-    console.log(serverData)
+    console.log(serverCoordinatesData)
 
     useEffect(() => {
         getDataDetails()
     }, [])
+
+    useEffect(() => {
+        dispatch.clearFilter()
+        dispatch.clearAllData()
+    }, [requestPlayerEvents])
 
     console.log(filters)
 
@@ -95,6 +116,8 @@ const Filters: FC = () => {
         <div className="filters__players">
             <div className="filters-filter">
                 Игроки
+                events
+                <input type="checkbox" checked={requestPlayerEvents} onChange={() => setRequestPlyaerEvents(!requestPlayerEvents)}/>
             </div>
             <div className="filters-content">
                 {players.length > 0 ?

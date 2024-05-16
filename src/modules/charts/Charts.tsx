@@ -24,25 +24,17 @@ ChartJS.register(
   Legend
 );
 
-function createGradient(ctx: CanvasRenderingContext2D, area: ChartArea) {
-  const colorStart = '#8C7DFE';
-  const colorMid = '#C2FF5E'
-  const colorEnd = '#56A3FF'
-
-  const gradient = ctx.createLinearGradient(0, area.bottom, 0, area.top);
-
-  gradient.addColorStop(0, colorStart);
-  gradient.addColorStop(0.5, colorMid);
-  gradient.addColorStop(1, colorEnd);
-
-  return gradient;
-}
-
 
 const Charts: FC= () => {
 
   const filters = useTypedSelector(state => state.filters.filter)
-  const serverData = useTypedSelector(state => state.filters.data)
+  const serverCoordinatesData = useTypedSelector(state => state.data.playerCoordsData)
+  const serverEventsData = useTypedSelector(state => state.data.playerEventsData)
+
+  const [actualData, setActualData] = useState([])
+
+  console.log(serverCoordinatesData)
+  console.log(serverEventsData)
 
   const dispatch = useActions()
 
@@ -51,9 +43,9 @@ const Charts: FC= () => {
     datasets: [],
   });
 
-  const labels = serverData.length > 0 && serverData[0].data.map((pair) => Math.floor(pair[0]))
+  const labels = serverCoordinatesData.length > 0 && serverCoordinatesData[0].data.map((pair) => Math.floor(pair[0]))
 
-  console.log(serverData)
+  console.log(serverCoordinatesData)
 
   const data = {
     labels,
@@ -64,7 +56,7 @@ const Charts: FC= () => {
     //     data: serverData.length > 0 && serverData.map((pair) => Math.ceil(pair[1])),
     //   },
     // ],
-    datasets: serverData.map((dataSet) => ({
+    datasets: serverCoordinatesData.map((dataSet) => ({
       label: dataSet.id,
       data: dataSet.data.map((pair) =>  Math.ceil(pair[1])),
       borderColor: `#${Math.floor(Math.random() * 16777215).toString(16)}`
@@ -86,20 +78,8 @@ const Charts: FC= () => {
     };
 
     setChartData(chartData);
-  }, [serverData]);
+  }, [serverCoordinatesData]);
 
-
-  useEffect( () => {
-    // console.log('called!', filters)
-    // filters.length > 0 && filters[0].value.map((val) => {
-    //   console.log(val)
-    //   if(serverData.some((elem) => elem.id === val)){
-    //     dispatch.deleteData(val)
-    //   }else{
-    //     getPlayerCoordinates(val)
-    //   }
-    // })
-  }, [filters])
 
   return (
     <div className="charts">

@@ -5,14 +5,8 @@ type filterType = {
     value: Array<string>
 }
 
-type dataType = {
-    id: string,
-    data: []
-}
-
 const initialState = {
     filter: [] as Array<filterType>,
-    data: [] as Array<dataType>
 }
 
 export const filterSlice = createSlice({
@@ -22,11 +16,8 @@ export const filterSlice = createSlice({
         addFilter: (state, action) => {
             state.filter = [action.payload]
         },
-        addData: (state, action) => {
-            state.data.push(action.payload)
-        },
-        deleteData: (state, action) => {
-            state.data = state.data.filter((elem) => elem.id !== action.payload)
+        clearFilter: (state) => {
+            state.filter = []
         }
     }
 })
