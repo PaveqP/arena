@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Charts, Header, Config} from './modules';
 import './App.scss';
+import { useTypedSelector } from './hooks/useTypedSelector';
+import { stat } from 'fs';
 
 function App() {
 
@@ -16,7 +18,7 @@ function App() {
         </div>
         <div className="App__filter">
           {
-           <Charts/>
+            <Charts />
           }
         </div>
       </div>

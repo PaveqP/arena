@@ -33,8 +33,6 @@ const Config:FC = () => {
         postData(data)
     }
 
-	console.log(requestStatus)
-
   return (
     <div className='config'>
         <p className="config__title">

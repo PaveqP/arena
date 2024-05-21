@@ -25,27 +25,18 @@ ChartJS.register(
 );
 
 
-const Charts: FC= () => {
+const Charts: FC = () => {
 
-  const filters = useTypedSelector(state => state.filters.filter)
-  const serverCoordinatesData = useTypedSelector(state => state.data.playerCoordsData)
-  const serverEventsData = useTypedSelector(state => state.data.playerEventsData)
+  const serverData: any = useTypedSelector(state => state.data.finalData)
 
-  const [actualData, setActualData] = useState([])
-
-  console.log(serverCoordinatesData)
-  console.log(serverEventsData)
-
-  const dispatch = useActions()
+  console.log(serverData)
 
   const chartRef = useRef<ChartJS>(null);
   const [chartData, setChartData] = useState<ChartData<'bar'>>({
     datasets: [],
   });
 
-  const labels = serverCoordinatesData.length > 0 && serverCoordinatesData[0].data.map((pair) => Math.floor(pair[0]))
-
-  console.log(serverCoordinatesData)
+  const labels = serverData.length > 0 && serverData[0].data.map((pair: any) => Math.floor(pair[1]))
 
   const data = {
     labels,
@@ -56,9 +47,9 @@ const Charts: FC= () => {
     //     data: serverData.length > 0 && serverData.map((pair) => Math.ceil(pair[1])),
     //   },
     // ],
-    datasets: serverCoordinatesData.map((dataSet) => ({
+    datasets: serverData.map((dataSet: any) => ({
       label: dataSet.id,
-      data: dataSet.data.map((pair) =>  Math.ceil(pair[1])),
+      data: dataSet.data.map((pair: any) =>  Math.ceil(pair[0])),
       borderColor: `#${Math.floor(Math.random() * 16777215).toString(16)}`
     }))
   };
@@ -72,18 +63,18 @@ const Charts: FC= () => {
 
     const chartData: any = {
       ...data,
-      datasets: data.datasets.map(dataset => ({
+      datasets: data.datasets.map((dataset: any) => ({
         ...dataset
       })),
     };
 
     setChartData(chartData);
-  }, [serverCoordinatesData]);
+  }, [serverData]);
 
 
   return (
     <div className="charts">
-        {chartData && <Chart ref={chartRef} type='line' data={chartData} className='charts__chart'/>}
+        <Chart ref={chartRef} type='line' data={chartData} className='charts__chart'/>
         {/* <Chart ref={chartRef} type='line' data={chartData} /> */}
     </div>
   );

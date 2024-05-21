@@ -3,7 +3,8 @@ import { dataCoordsType, dataEventsType } from "./data.types";
 
 const initialState = {
     playerCoordsData: [] as Array<dataCoordsType>,
-    playerEventsData: [] as Array<dataEventsType>
+    playerEventsData: [] as Array<dataEventsType>,
+    finalData: [] as Array<dataEventsType | dataCoordsType>
 }
 
 export const dataSlice = createSlice({
@@ -21,6 +22,9 @@ export const dataSlice = createSlice({
         },
         deleteEventsData: (state, action) => {
             state.playerEventsData = state.playerEventsData.filter((elem) => elem.id !== action.payload)
+        },
+        setFinalData: (state, action) => {
+            state.finalData = action.payload
         },
         clearAllData: (state) => {
             state.playerCoordsData = []

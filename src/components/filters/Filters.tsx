@@ -28,7 +28,6 @@ const Filters: FC = () => {
     const getDataDetails = async () => {
         try {
             const response = await axios.get('http://127.0.0.1:5000/description')
-            console.log(response)
             //setTeams(response.data.descriptionPlayers.numInTeam)
             setServer(response.data.Server)
             setPlayers(response.data.descriptionPlayers.numPlayer)
@@ -80,8 +79,6 @@ const Filters: FC = () => {
         dispatch.addFilter({type, "value": newFilters})
     }
 
-    console.log(serverCoordinatesData)
-
     useEffect(() => {
         getDataDetails()
     }, [])
@@ -91,7 +88,19 @@ const Filters: FC = () => {
         dispatch.clearAllData()
     }, [requestPlayerEvents])
 
-    console.log(filters)
+    useEffect(() => {
+        if (serverCoordinatesData.length > 0){
+            dispatch.setFinalData(serverCoordinatesData)
+        } else if (serverEventData.length > 0){
+            let chartEventData: any = []
+            chartEventData = serverEventData.map((dataElement: any) => (
+                {id: dataElement.id, data: dataElement.data.event.map((el: any, elId: number) => 
+                    [el, dataElement.data.timeGameEvents[elId]]
+                )}
+            ))
+            dispatch.setFinalData(chartEventData)
+        }
+    }, [serverCoordinatesData, serverEventData])
 
   return (
     <div className='filters'>
@@ -121,10 +130,11 @@ const Filters: FC = () => {
             </div>
             <div className="filters-content">
                 {players.length > 0 ?
-                players.map((player: string) => (
+                players.map((player: string, playerId: number) => (
                     <button 
                         className={(filters[0] && filters[0].type === 'player' && filters[0].value.includes(player)) ? 'content-activeSelectButton' : 'content-selectButton'} 
                         onClick={() => handleSelectFilter('player', player)}
+                        key={playerId}
                     >
                         {player}
                     </button>
@@ -140,10 +150,11 @@ const Filters: FC = () => {
             </div>
             <div className="filters-content">
                 {polygons.length > 0 ?
-                polygons.map((polygon: string) => (
+                polygons.map((polygon: string, polygonId: number) => (
                     <button 
                         className={(filters[0] && filters[0].type === 'polygon' && filters[0].value.includes(polygon)) ? 'content-activeSelectButton' : 'content-selectButton'} 
                         onClick={() => handleSelectFilter('polygon', polygon)}
+                        key={polygonId}
                     >
                         {polygon}
                     </button>
