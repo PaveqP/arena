@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, current } from "@reduxjs/toolkit";
 
 type filterType = {
     type: string,
@@ -7,6 +7,7 @@ type filterType = {
 
 const initialState = {
     filter: [] as Array<filterType>,
+    currentFilter: ''
 }
 
 export const filterSlice = createSlice({
@@ -18,6 +19,9 @@ export const filterSlice = createSlice({
         },
         clearFilter: (state) => {
             state.filter = []
+        },
+        setCurrentFilter: (state, action) => {
+            state.currentFilter = action.payload
         }
     }
 })

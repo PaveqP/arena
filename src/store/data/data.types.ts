@@ -10,3 +10,19 @@ export type dataEventsType = {
     paramEvent: [],
     timeGame: []
 }
+
+export type polygonsType = {
+    id: string,
+    event: [],
+    numPolygon: number,
+    paramEvent: [],
+    timeGame: []
+}
+
+export type serverType = {
+    id: string,
+    event: [],
+    numPolygon: number,
+    paramEvent: [],
+    timeGame: []
+}

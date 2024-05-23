@@ -4,7 +4,7 @@ import { Charts } from '../../modules'
 import axios from 'axios'
 import { useActions } from '../../hooks/useActions'
 import { useTypedSelector } from '../../hooks/useTypedSelector'
-import { getPlayerCoordinates, getPlayerEvents } from '../../api/player/PlayersData'
+import { getPlayerCoordinates, getPlayerEvents, getPolygons } from '../../api/player/PlayersData'
 
 // interface IFilter{
 //     setSelectedFilter: (selectedFilter: any) => void,
@@ -15,6 +15,8 @@ const Filters: FC = () => {
     const filters = useTypedSelector(state => state.filters.filter)
     const serverCoordinatesData = useTypedSelector(state => state.data.playerCoordsData)
     const serverEventData = useTypedSelector(state => state.data.playerEventsData)
+    const polygonsData = useTypedSelector(state => state.data.polygonsData)
+    const currentFilter = useTypedSelector(state => state.filters.currentFilter)
 
     const [teams, setTeams] = useState([])
     const [players, setPlayers] = useState([])
@@ -25,10 +27,11 @@ const Filters: FC = () => {
 
     const dispatch = useActions()
 
+    console.log(currentFilter)
+
     const getDataDetails = async () => {
         try {
             const response = await axios.get('http://127.0.0.1:5000/description')
-            //setTeams(response.data.descriptionPlayers.numInTeam)
             setServer(response.data.Server)
             setPlayers(response.data.descriptionPlayers.numPlayer)
             setPolygons(response.data.descriptionPolygons.numPolygon)
@@ -38,37 +41,61 @@ const Filters: FC = () => {
     }
 
     const handleSelectFilter = (type: string, value: string) => {
+        if (currentFilter !== type){
+            dispatch.clearFilter()
+            dispatch.clearAllData()
+            dispatch.setCurrentFilter(type)
+        }
+        dispatch.setCurrentFilter(type)
         let prevType = filters.length > 0 && filters[0].type 
         let prevFilters: Array<string> = filters.length > 0 ? [...filters[0].value] : []
         let newFilters = []
 
-        if (requestPlayerEvents){
-            if(serverEventData.some((elem) => elem.id === value))
-            {
-                dispatch.deleteEventsData(value)
-            } 
-            else 
-            {
-                getPlayerEvents(value)
-            }
-            
-            if (prevType !== type){
-                prevFilters = []
-            }
-        } else {
-            if(serverCoordinatesData.some((elem) => elem.id === value))
-            {
-                dispatch.deleteCoordinatesData(value)
-            } 
-            else 
-            {
-                getPlayerCoordinates(value)
-            }
-        
-            if (prevType !== type){
-                prevFilters = []
-            }
+        switch(type){
+            case 'player':
+                if (requestPlayerEvents){
+                    if(serverEventData.some((elem) => elem.id === value))
+                    {
+                        dispatch.deleteEventsData(value)
+                    } 
+                    else 
+                    {
+                        getPlayerEvents(value)
+                    }
+                    
+                    if (prevType !== type){
+                        prevFilters = []
+                    }
+                } else {
+                    if(serverCoordinatesData.some((elem) => elem.id === value))
+                    {
+                        dispatch.deleteCoordinatesData(value)
+                    } 
+                    else 
+                    {
+                        getPlayerCoordinates(value)
+                    }
+                
+                    if (prevType !== type){
+                        prevFilters = []
+                    }
+                }
+                break
+            case 'polygon':
+                if(polygonsData.some((elem) => elem.id === value))
+                    {
+                        dispatch.deletePolygonsData(value)
+                    } 
+                    else 
+                    {
+                        getPolygons(value)
+                    }
+                    if (prevType !== type){
+                        prevFilters = []
+                    }
+
         }
+        
 
         if (prevFilters.includes(value)){
             newFilters = prevFilters.filter((val) => val !== value)
@@ -76,6 +103,7 @@ const Filters: FC = () => {
             newFilters = [...prevFilters, value]
         }
 
+        console.log('dispatched')
         dispatch.addFilter({type, "value": newFilters})
     }
 
@@ -99,8 +127,16 @@ const Filters: FC = () => {
                 )}
             ))
             dispatch.setFinalData(chartEventData)
+        } else if (polygonsData.length > 0){
+            let chartPolygonsData: any = []
+            chartPolygonsData = polygonsData.map((dataElement: any) => (
+                {id: dataElement.id, data: dataElement.data.event.map((el: any, elId: number) => 
+                    [el, dataElement.data.timeGame[elId]]
+                )}
+            ))
+            dispatch.setFinalData(chartPolygonsData)
         }
-    }, [serverCoordinatesData, serverEventData])
+    }, [serverCoordinatesData, serverEventData, polygonsData])
 
   return (
     <div className='filters'>

@@ -24,5 +24,15 @@ const getPlayerCoordinates = async (playerId: string) => {
     }
 }
 
+const getPolygons = async (polygonId: string) => {
+    try {
+        const response = await axios.get(`http://127.0.0.1:5000/description/polygon/${polygonId}`)
+        store.dispatch(dataActions.addPolygonsData({id: polygonId, data: response.data})) 
+    } catch (error: any) {
+        //throw Error(error)
+    }
+}
+
 export {getPlayerEvents}
 export {getPlayerCoordinates}
+export {getPolygons}
