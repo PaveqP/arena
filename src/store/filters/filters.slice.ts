@@ -7,7 +7,8 @@ type filterType = {
 
 const initialState = {
     filter: [] as Array<filterType>,
-    currentFilter: ''
+    currentFilter: '',
+    requestStatus: false
 }
 
 export const filterSlice = createSlice({
@@ -22,6 +23,9 @@ export const filterSlice = createSlice({
         },
         setCurrentFilter: (state, action) => {
             state.currentFilter = action.payload
+        },
+        setRequestStatus: (state, action) => {
+            state.requestStatus = action.payload
         }
     }
 })

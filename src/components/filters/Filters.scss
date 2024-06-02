@@ -1,7 +1,22 @@
 .filters{
+    display: flex;
+    height: 100%;
+    padding-right: 100px;
+
+    &-number{
+        font-size: 15px;
+        margin-right: 11px;
+        width: 23px;
+        height: calc(100% - 60px);
+        background-color: rgba($color: #1C111F, $alpha: 0.2);
+        color: #FEFEFE;
+        border-top-left-radius: 10px;
+        border-bottom-left-radius: 10px;
+        padding-left: 8px;
+        padding-top: 8px;
+    }
 
     &__row{
-        max-width: 300px;
         display: flex;
         // align-items: flex-start;
         flex-direction: column;
@@ -13,7 +28,7 @@
     }
 
     &__players{
-        
+
     }
 
     &__polygons{
@@ -21,39 +36,46 @@
     }
 
     &-filter{
-        width: 250px;
-        background-color: #CE68E8;
+        background-color: #FF6D1B;
         color: white;
-        padding: 10px 80px;
+        width: 350px;
+        padding: 10px;
         font-size: 20px;
-        border-radius: 7px;
-        text-align: center;
+        text-align: left;
     }
 
     &-content{
         max-height: 140px;
         overflow-y: scroll;
         margin-top: 10px;
-        border: 2px solid#CE68E8;
-        border-radius: 15px;
-        padding: 10px;
+        // padding: 10px;
         display: flex;
         flex-direction: column;
-        gap: 5px;
+        justify-content: left;
+        gap: 7px;
     }
 }
 
 .content{
 
     &-selectButton{
-        border-radius: 10px;
-        padding: 5px 10px;
+        text-align: left;
+        font-size: 15px;
+        // border-radius: 10px;
+        // border-bottom-right-radius: 0px;
+        background-color: #343434;
+        border: 1px solid #FEFEFE;
+        padding: 4px 10px;
+        color: white;
     }
 
     &-activeSelectButton{
-        border-radius: 10px;
-        padding: 5px 10px;
-        background-color: #CE68E8;
+        text-align: left;
+        font-size: 15px;
+        // border-radius: 10px;
+        padding: 4px 10px;
+        background-color: #218906;
+        border: 1px solid #FEFEFE;
         color: white;
     }
 }

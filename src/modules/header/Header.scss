@@ -1,21 +1,18 @@
 .header{
     padding: 10px;
 
+    &-leftBlock{
+        width: 5px;
+    }
+
     &__row{
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: space-between;
     }
 
     &__logo{
-        display: flex;
-        background-color: #CE68E8;
-        border-radius: 7px;
-        font-size: 24px;
-        font-weight: bold;
-        color: white;
-        border: 2px solid #CE68E8;
-        padding: 1px;
+        padding-top: 30px;
     }
 
     &__separator{

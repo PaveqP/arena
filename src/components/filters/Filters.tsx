@@ -4,18 +4,20 @@ import { Charts } from '../../modules'
 import axios from 'axios'
 import { useActions } from '../../hooks/useActions'
 import { useTypedSelector } from '../../hooks/useTypedSelector'
-import { getPlayerCoordinates, getPlayerEvents, getPolygons } from '../../api/player/PlayersData'
+import { getPlayerCoordinates, getPlayerEvents, getPolygons, getServer } from '../../api/player/PlayersData'
 
-// interface IFilter{
-//     setSelectedFilter: (selectedFilter: any) => void,
-//     selectedFilter: any
-// }
-const Filters: FC = () => {
+interface IFilter{
+    firstCoord: string
+    secondCoord: string
+}
+
+const Filters: FC<IFilter> = ({firstCoord, secondCoord}) => {
 
     const filters = useTypedSelector(state => state.filters.filter)
     const serverCoordinatesData = useTypedSelector(state => state.data.playerCoordsData)
     const serverEventData = useTypedSelector(state => state.data.playerEventsData)
     const polygonsData = useTypedSelector(state => state.data.polygonsData)
+    const serverData = useTypedSelector(state => state.data.serverData)
     const currentFilter = useTypedSelector(state => state.filters.currentFilter)
 
     const [teams, setTeams] = useState([])
@@ -93,7 +95,19 @@ const Filters: FC = () => {
                     if (prevType !== type){
                         prevFilters = []
                     }
-
+                break
+            case 'server':
+                if(serverData.some((elem) => elem.id === value))
+                    {
+                        dispatch.deleteServerData(value)
+                    } 
+                    else 
+                    {
+                        getServer()
+                    }
+                    if (prevType !== type){
+                        prevFilters = []
+                    }
         }
         
 
@@ -118,7 +132,48 @@ const Filters: FC = () => {
 
     useEffect(() => {
         if (serverCoordinatesData.length > 0){
-            dispatch.setFinalData(serverCoordinatesData)
+            // dispatch.setFinalData(serverCoordinatesData)
+            let chartCoordinatesData: any = []
+
+            if (firstCoord === 'X' && secondCoord === 'Y'){
+                console.log(serverCoordinatesData)
+                chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
+                    {id: dataElement.id, data: dataElement.data.map((el: any) => 
+                        [el[0], el[1]]
+                    )}
+                ))
+            } else if (firstCoord === 'X' && secondCoord === 'Z'){
+                chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
+                    {id: dataElement.id, data: dataElement.data.map((el: any) => 
+                        [el[0], el[2]]
+                    )}
+                ))
+            } else if (firstCoord === 'Y' && secondCoord === 'Z'){
+                chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
+                    {id: dataElement.id, data: dataElement.data.map((el: any) => 
+                        [el[1], el[2]]
+                    )}
+                ))
+            } else if (firstCoord === 'Y' && secondCoord === 'X'){
+                chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
+                    {id: dataElement.id, data: dataElement.data.map((el: any) => 
+                        [el[1], el[0]]
+                    )}
+                ))
+            } else if (firstCoord === 'Z' && secondCoord === 'X'){
+                chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
+                    {id: dataElement.id, data: dataElement.data.map((el: any) => 
+                        [el[2], el[0]]
+                    )}
+                ))
+            } else if (firstCoord === 'Z' && secondCoord === 'Y'){
+                chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
+                    {id: dataElement.id, data: dataElement.data.map((el: any) => 
+                        [el[2], el[1]]
+                    )}
+                ))
+            }
+            dispatch.setFinalData(chartCoordinatesData)
         } else if (serverEventData.length > 0){
             let chartEventData: any = []
             chartEventData = serverEventData.map((dataElement: any) => (
@@ -135,75 +190,83 @@ const Filters: FC = () => {
                 )}
             ))
             dispatch.setFinalData(chartPolygonsData)
+        } else if (serverData.length > 0){
+            let chartServerData: any = []
+            chartServerData = serverData.map((dataElement: any) => (
+                {id: dataElement.id, data: dataElement.data.event.map((el: any, elId: number) => 
+                    [el, dataElement.data.timeGame[elId]]
+                )}
+            ))
+            dispatch.setFinalData(chartServerData)
         }
-    }, [serverCoordinatesData, serverEventData, polygonsData])
+    }, [serverCoordinatesData, serverEventData, polygonsData, serverData, firstCoord, secondCoord])
 
   return (
     <div className='filters'>
-      <div className="filters__row">
-        <div className="filters__teams">
-            <div className="filters-filter">
-                Сервер
-            </div>
-            {
-            <div className="filters-content">
-                {server &&
-                    <button 
-                        className={filters[0] && filters[0].type === 'server' ? 'content-activeSelectButton' : 'content-selectButton'} 
-                        onClick={() => handleSelectFilter('server', server)}
-                    >
-                        {server}
-                    </button>
-                }
-            </div>
-            }
+        <div className="filters-number">
+            1
         </div>
+        <div className="filters__row">
         <div className="filters__players">
-            <div className="filters-filter">
-                Игроки
-                events
-                <input type="checkbox" checked={requestPlayerEvents} onChange={() => setRequestPlyaerEvents(!requestPlayerEvents)}/>
+                <div className="filters-filter">
+                    Игроки
+                    events
+                    <input type="checkbox" checked={requestPlayerEvents} onChange={() => setRequestPlyaerEvents(!requestPlayerEvents)}/>
+                </div>
+                <div className="filters-content">
+                    {players.length > 0 ?
+                    players.map((player: string, playerId: number) => (
+                        <button 
+                            className={(filters[0] && filters[0].type === 'player' && filters[0].value.includes(player)) ? 'content-activeSelectButton' : 'content-selectButton'} 
+                            onClick={() => handleSelectFilter('player', player)}
+                            key={playerId}
+                        >
+                            {player}
+                        </button>
+                    )) 
+                    :
+                    <p>Игроки не найдены</p>
+                    }
+                </div>
             </div>
-            <div className="filters-content">
-                {players.length > 0 ?
-                players.map((player: string, playerId: number) => (
-                    <button 
-                        className={(filters[0] && filters[0].type === 'player' && filters[0].value.includes(player)) ? 'content-activeSelectButton' : 'content-selectButton'} 
-                        onClick={() => handleSelectFilter('player', player)}
-                        key={playerId}
-                    >
-                        {player}
-                    </button>
-                )) 
-                :
-                <p>Игроки не найдены</p>
+            <div className="filters__polygons">
+                <div className="filters-filter">
+                    Полигоны
+                </div>
+                <div className="filters-content">
+                    {polygons.length > 0 ?
+                    polygons.map((polygon: string, polygonId: number) => (
+                        <button 
+                            className={(filters[0] && filters[0].type === 'polygon' && filters[0].value.includes(polygon)) ? 'content-activeSelectButton' : 'content-selectButton'} 
+                            onClick={() => handleSelectFilter('polygon', polygon)}
+                            key={polygonId}
+                        >
+                            {polygon}
+                        </button>
+                    )) 
+                    :
+                    <p>Полигоны не найдены</p>
+                    }
+                </div>
+            </div>
+            <div className="filters__teams">
+                <div className="filters-filter">
+                    Сервер
+                </div>
+                {
+                <div className="filters-content">
+                    {server &&
+                        <button 
+                            className={filters[0] && filters[0].type === 'server' ? 'content-activeSelectButton' : 'content-selectButton'} 
+                            onClick={() => handleSelectFilter('server', server)}
+                        >
+                            Отобразить данные сервера
+                        </button>
+                    }
+                </div>
                 }
             </div>
         </div>
-        <div className="filters__polygons">
-            <div className="filters-filter">
-                Полигоны
-            </div>
-            <div className="filters-content">
-                {polygons.length > 0 ?
-                polygons.map((polygon: string, polygonId: number) => (
-                    <button 
-                        className={(filters[0] && filters[0].type === 'polygon' && filters[0].value.includes(polygon)) ? 'content-activeSelectButton' : 'content-selectButton'} 
-                        onClick={() => handleSelectFilter('polygon', polygon)}
-                        key={polygonId}
-                    >
-                        {polygon}
-                    </button>
-                )) 
-                :
-                <p>Полигоны не найдены</p>
-                }
-            </div>
-        </div>
-      </div>
-      {/* {
-        (selectedFilter && selectedFilter.value !== '') && <Charts requestData={selectedFilter}/>
-      } */}
     </div>
   )
 }

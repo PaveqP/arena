@@ -35,7 +35,7 @@ export const dataSlice = createSlice({
         },
         /*------------------------------------------------------------------*/
         addServerData: (state, action) => {
-            state.serverData.push(action.payload)
+            state.serverData = [action.payload]
         },
         deleteServerData: (state, action) => {
             state.serverData = state.serverData.filter((elem) => elem.id !== action.payload)
@@ -48,6 +48,7 @@ export const dataSlice = createSlice({
             state.playerCoordsData = []
             state.playerEventsData = []
             state.polygonsData = []
+            state.serverData = []
         },
     }
 })

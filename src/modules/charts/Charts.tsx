@@ -24,8 +24,14 @@ ChartJS.register(
   Legend
 );
 
+interface ICharts {
+  firstCoord: string
+  secondCoord: string
+  setFirstCoord: (firstCoord: string) => void
+  setSecondCoord: (secondCoord: string) => void
+}
 
-const Charts: FC = () => {
+const Charts: FC<ICharts> = ({firstCoord, secondCoord, setFirstCoord, setSecondCoord}) => {
 
   const serverData: any = useTypedSelector(state => state.data.finalData)
 
@@ -36,7 +42,7 @@ const Charts: FC = () => {
     datasets: [],
   });
 
-  const labels = serverData.length > 0 && serverData[0].data.map((pair: any) => Math.floor(pair[1]))
+  const labels = serverData.length > 0 && serverData[0].data.map((pair: any) => pair[1])
 
   const data = {
     labels,
@@ -49,7 +55,7 @@ const Charts: FC = () => {
     // ],
     datasets: serverData.map((dataSet: any) => ({
       label: dataSet.id,
-      data: dataSet.data.map((pair: any) =>  Math.ceil(pair[0])),
+      data: dataSet.data.map((pair: any) =>  pair[0]),
       borderColor: `#${Math.floor(Math.random() * 16777215).toString(16)}`
     }))
   };
@@ -75,6 +81,20 @@ const Charts: FC = () => {
   return (
     <div className="charts">
         <Chart ref={chartRef} type='line' data={chartData} className='charts__chart'/>
+        {chartData &&
+          <div className="charts__inputs">
+            <select value={firstCoord} onChange={(e) => setFirstCoord(e.target.value)}>
+              <option value="X">X</option>
+              <option value="Y">Y</option>
+              <option value="Z">Z</option>
+            </select>
+            <select value={secondCoord} onChange={(e) => setSecondCoord(e.target.value)}>
+              <option value="X">X</option>
+              <option value="Y">Y</option>
+              <option value="Z">Z</option>
+            </select>
+          </div>
+        }
         {/* <Chart ref={chartRef} type='line' data={chartData} /> */}
     </div>
   );

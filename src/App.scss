@@ -1,11 +1,13 @@
 body{
   font-family: Arial, Helvetica, sans-serif;
+  background-color: #282828;
 }
 
 .App{
-  // background-color: #282828;
+  padding: 0px 50px;
 
   &__data{
+    margin-bottom: 20px;
     display: flex;
     gap: 50px;
     padding: 20px;
@@ -26,7 +28,30 @@ body{
   }
 
   &__filter{
+    height: 100%;
+    display: flex;
+    align-items: center;
     width: 100%;
+  }
+
+  &-addView{
+    cursor: pointer;
+    margin: 0 auto;
+    background-color: #FF3900;
+    border-radius: 10px;
+    padding: 10px 200px;
+    color: #FEFEFE;
+    max-width: fit-content;
+  }
+
+  &-addView:hover{
+    scale: 1.02;
+    transition: 0.3s;
+  }
+
+  &-addView:not(:hover){
+    scale: 1;
+    transition: 0.3s;
   }
 
 }
