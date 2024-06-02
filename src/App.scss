@@ -9,6 +9,7 @@ body{
   &__data{
     margin-bottom: 20px;
     display: flex;
+    flex-direction: column;
     gap: 50px;
     padding: 20px;
   }
@@ -32,6 +33,7 @@ body{
     display: flex;
     align-items: center;
     width: 100%;
+    padding-bottom: 50px;
   }
 
   &-addView{

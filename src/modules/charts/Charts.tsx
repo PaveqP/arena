@@ -29,11 +29,13 @@ interface ICharts {
   secondCoord: string
   setFirstCoord: (firstCoord: string) => void
   setSecondCoord: (secondCoord: string) => void
+  requestPlayerEvents: boolean
 }
 
-const Charts: FC<ICharts> = ({firstCoord, secondCoord, setFirstCoord, setSecondCoord}) => {
+const Charts: FC<ICharts> = ({firstCoord, secondCoord, setFirstCoord, setSecondCoord, requestPlayerEvents}) => {
 
   const serverData: any = useTypedSelector(state => state.data.finalData)
+  const filterType = useTypedSelector(state => state.filters.currentFilter)
 
   console.log(serverData)
 
@@ -81,18 +83,22 @@ const Charts: FC<ICharts> = ({firstCoord, secondCoord, setFirstCoord, setSecondC
   return (
     <div className="charts">
         <Chart ref={chartRef} type='line' data={chartData} className='charts__chart'/>
-        {chartData &&
+        {serverData.length > 0 && !requestPlayerEvents && filterType === 'player' &&
           <div className="charts__inputs">
-            <select value={firstCoord} onChange={(e) => setFirstCoord(e.target.value)}>
-              <option value="X">X</option>
-              <option value="Y">Y</option>
-              <option value="Z">Z</option>
-            </select>
-            <select value={secondCoord} onChange={(e) => setSecondCoord(e.target.value)}>
-              <option value="X">X</option>
-              <option value="Y">Y</option>
-              <option value="Z">Z</option>
-            </select>
+            <div className="inputs__OX">
+              <p className='inputs-placeholder'>OX:</p>
+              <select value={firstCoord} onChange={(e) => setFirstCoord(e.target.value)}>
+                <option value="X">X</option>
+                <option value="Y">Y</option>
+                <option value="Z">Z</option>
+              </select>
+            </div>
+            <div className="inputs__OY">
+              <p className='inputs-placeholder'>OY:</p>
+              <select value={secondCoord} onChange={(e) => setSecondCoord(e.target.value)}>
+                <option value="X">Time Game</option>
+              </select>
+            </div>
           </div>
         }
         {/* <Chart ref={chartRef} type='line' data={chartData} /> */}

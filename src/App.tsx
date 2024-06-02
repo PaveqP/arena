@@ -9,6 +9,9 @@ function App() {
 
   const requestStatus = useTypedSelector(state => state.filters.requestStatus)
 
+  const [requestPlayerEvents, setRequestPlyaerEvents] = useState(false)
+  const [charts, setCharts] = useState(['chart'])
+
   const [firstCoord, setFirstCoord] = useState('X')
   const [secondCoord, setSecondCoord] = useState('Y')
 
@@ -20,14 +23,28 @@ function App() {
       <Header/>
       <div className="App__data">
         { requestStatus &&
-          <div className="App__filter">
-            <Filters firstCoord={firstCoord} secondCoord={secondCoord}/>
-            <Charts firstCoord={firstCoord} secondCoord={secondCoord} setFirstCoord={setFirstCoord} setSecondCoord={setSecondCoord}/>
+          charts.map((chart, chartId) => (
+          <div className="App__filter" key={chartId}>
+            <Filters 
+              firstCoord={firstCoord} 
+              secondCoord={secondCoord} 
+              requestPlayerEvents={requestPlayerEvents} 
+              setRequestPlyaerEvents={setRequestPlyaerEvents}
+              id={chartId + 1}
+            />
+            <Charts 
+              firstCoord={firstCoord} 
+              secondCoord={secondCoord} 
+              setFirstCoord={setFirstCoord} 
+              setSecondCoord={setSecondCoord} 
+              requestPlayerEvents={requestPlayerEvents}
+            />
           </div>
+          ))
         }
       </div>
       { requestStatus &&
-        <div className="App-addView">
+        <div className="App-addView" onClick={() => setCharts((charts) => [...charts, 'chart'])}>
           + Добавить отображение
         </div>
       }

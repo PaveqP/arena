@@ -9,9 +9,12 @@ import { getPlayerCoordinates, getPlayerEvents, getPolygons, getServer } from '.
 interface IFilter{
     firstCoord: string
     secondCoord: string
+    requestPlayerEvents: boolean
+    setRequestPlyaerEvents: (requestPlayerEvents: boolean) => void
+    id: number
 }
 
-const Filters: FC<IFilter> = ({firstCoord, secondCoord}) => {
+const Filters: FC<IFilter> = ({firstCoord, secondCoord, requestPlayerEvents, setRequestPlyaerEvents, id}) => {
 
     const filters = useTypedSelector(state => state.filters.filter)
     const serverCoordinatesData = useTypedSelector(state => state.data.playerCoordsData)
@@ -24,8 +27,6 @@ const Filters: FC<IFilter> = ({firstCoord, secondCoord}) => {
     const [players, setPlayers] = useState([])
     const [polygons, setPolygons] = useState([])
     const [server, setServer] = useState('')
-
-    const [requestPlayerEvents, setRequestPlyaerEvents] = useState(false)
 
     const dispatch = useActions()
 
@@ -135,44 +136,27 @@ const Filters: FC<IFilter> = ({firstCoord, secondCoord}) => {
             // dispatch.setFinalData(serverCoordinatesData)
             let chartCoordinatesData: any = []
 
-            if (firstCoord === 'X' && secondCoord === 'Y'){
+            if (firstCoord === 'X'){
                 console.log(serverCoordinatesData)
                 chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
-                    {id: dataElement.id, data: dataElement.data.map((el: any) => 
-                        [el[0], el[1]]
+                    // console.log(dataElement)
+                    {id: dataElement.id, data: dataElement.data.coordinates.map((el: any, elIndex: number) => 
+                        [el[0], dataElement.data.timeGameCoordinates[elIndex]]
                     )}
                 ))
-            } else if (firstCoord === 'X' && secondCoord === 'Z'){
+            } else if (firstCoord === 'Y'){
                 chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
-                    {id: dataElement.id, data: dataElement.data.map((el: any) => 
-                        [el[0], el[2]]
+                    {id: dataElement.id, data: dataElement.data.coordinates.map((el: any, elIndex: number) => 
+                        [el[1], dataElement.data.timeGameCoordinates[elIndex]]
                     )}
                 ))
-            } else if (firstCoord === 'Y' && secondCoord === 'Z'){
+            } else if (firstCoord === 'Z'){
                 chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
-                    {id: dataElement.id, data: dataElement.data.map((el: any) => 
-                        [el[1], el[2]]
+                    {id: dataElement.id, data: dataElement.data.coordinates.map((el: any, elIndex: number) => 
+                        [el[2], dataElement.data.timeGameCoordinates[elIndex]]
                     )}
                 ))
-            } else if (firstCoord === 'Y' && secondCoord === 'X'){
-                chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
-                    {id: dataElement.id, data: dataElement.data.map((el: any) => 
-                        [el[1], el[0]]
-                    )}
-                ))
-            } else if (firstCoord === 'Z' && secondCoord === 'X'){
-                chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
-                    {id: dataElement.id, data: dataElement.data.map((el: any) => 
-                        [el[2], el[0]]
-                    )}
-                ))
-            } else if (firstCoord === 'Z' && secondCoord === 'Y'){
-                chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
-                    {id: dataElement.id, data: dataElement.data.map((el: any) => 
-                        [el[2], el[1]]
-                    )}
-                ))
-            }
+            } 
             dispatch.setFinalData(chartCoordinatesData)
         } else if (serverEventData.length > 0){
             let chartEventData: any = []
@@ -204,7 +188,7 @@ const Filters: FC<IFilter> = ({firstCoord, secondCoord}) => {
   return (
     <div className='filters'>
         <div className="filters-number">
-            1
+            {id}
         </div>
         <div className="filters__row">
         <div className="filters__players">

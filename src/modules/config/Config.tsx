@@ -11,7 +11,11 @@ const Config:FC = () => {
 	const [file, setFile] = useState('')
 	const [requestStatus, setRequestStatus] = useState<any>('')
 
+	const filter = useTypedSelector(state => state.filters.currentFilter)
+
 	const dispatch = useActions()
+
+	console.log(filter)
 
 	const handlePhotoChange = (e: any) => {
         setFile(e.target.files[0])

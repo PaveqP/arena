@@ -18,7 +18,7 @@ const getPlayerCoordinates = async (playerId: string) => {
 
     try {
         const response = await axios.get(`http://127.0.0.1:5000/description/player/${playerId}/coordinates`)
-        store.dispatch(dataActions.addCoordinatesData({id: playerId, data: response.data.coordinates})) 
+        store.dispatch(dataActions.addCoordinatesData({id: playerId, data: response.data})) 
     } catch (error: any) {
         //throw Error(error)
     }

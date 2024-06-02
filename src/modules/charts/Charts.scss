@@ -10,6 +10,7 @@
         padding-top: 20px;
         padding-left: 30px;
         display: flex;
+        align-items: center;
         gap: 20px;
 
         select{
@@ -29,4 +30,24 @@
 
 option{
     border-radius: 2px solid red;
+}
+
+.inputs{
+
+    &-placeholder{
+        padding: 0px 10px;
+        color: white;
+    }
+
+    &__OX{
+        display: flex;
+        align-items: center;
+        background-color: #FF6D1B;
+    }
+
+    &__OY{
+        display: flex;
+        align-items: center;
+        background-color: #FF6D1B;
+    }
 }
