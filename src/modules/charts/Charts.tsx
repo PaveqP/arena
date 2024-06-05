@@ -26,12 +26,16 @@ type CoordType = {
   [key: number]: string
 }
 
+type EventsType = {
+  [key: number]: boolean
+}
+
 interface ICharts {
   firstCoord: CoordType;
   secondCoord: string;
   setFirstCoord: any;
   setSecondCoord: (secondCoord: string) => void;
-  requestPlayerEvents: boolean;
+  requestPlayerEvents: EventsType;
   id: any
 }
 

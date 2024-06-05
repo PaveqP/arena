@@ -9,11 +9,15 @@ type CoordType = {
   [key: number]: string
 }
 
+type EventsType = {
+  [key: number]: boolean
+}
+
 function App() {
 
   const requestStatus = useTypedSelector(state => state.filters.requestStatus)
 
-  const [requestPlayerEvents, setRequestPlyaerEvents] = useState(false)
+  const [requestPlayerEvents, setRequestPlyaerEvents] = useState<EventsType>({1: false})
   const [charts, setCharts] = useState(['chart'])
 
   const [firstCoord, setFirstCoord] = useState<CoordType>({1: 'X'})

@@ -5,17 +5,20 @@ import { useActions } from '../../hooks/useActions';
 import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { ConfigurateData } from './ConfigurateData';
 import { SelectFilter } from './SelectFilters';
-import { getPlayerCoordinates, getPlayerEvents, getPolygons, getServer } from '../../api/player/PlayersData';
 
 type CoordType = {
     [key: number]: string
-  }
+}
+
+type EventsType = {
+    [key: number]: boolean
+}
 
 interface IFilter {
   firstCoord: CoordType;
   secondCoord: string;
-  requestPlayerEvents: boolean;
-  setRequestPlyaerEvents: (requestPlayerEvents: boolean) => void;
+  requestPlayerEvents: EventsType;
+  setRequestPlyaerEvents: (requestPlayerEvents: EventsType) => void;
   id: number; 
 }
 
@@ -51,7 +54,12 @@ const Filters: FC<IFilter> = ({ firstCoord, secondCoord, requestPlayerEvents, se
 
   useEffect(() => {
     dispatch.clearFilter({ chartId: id });
-    dispatch.clearAllData({ chartId: id });
+    if (requestPlayerEvents && serverCoordinatesData){
+        dispatch.clearCoordinatesData({ chartId: id })
+    } else if (!requestPlayerEvents && serverEventData){
+        dispatch.clearEventsData({ chartId: id })
+    }
+    // dispatch.clearAllData({ chartId: id });
   }, [requestPlayerEvents]);
 
   useEffect(() => {
@@ -68,7 +76,7 @@ const Filters: FC<IFilter> = ({ firstCoord, secondCoord, requestPlayerEvents, se
           <div className="filters-filter">
             Игроки
             events
-            <input type="checkbox" checked={requestPlayerEvents} onChange={() => setRequestPlyaerEvents(!requestPlayerEvents)} />
+            <input type="checkbox" checked={requestPlayerEvents[id]} onChange={() => setRequestPlyaerEvents({...requestPlayerEvents, [id]: !requestPlayerEvents[id]})} />
           </div>
           <div className="filters-content">
             {players.length > 0 ?

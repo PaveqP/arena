@@ -1,10 +1,14 @@
 import { getPlayerCoordinates, getPlayerEvents, getPolygons, getServer } from '../../api/player/PlayersData';
 
-export const SelectFilter = (type: string, value: string, currentFilter: string, dispatch: any, filters: any, id: number, requestPlayerEvents: boolean, serverEventData: any, serverCoordinatesData: any, polygonsData: any, serverData: any) => {
-    if (currentFilter !== type) {
+
+type EventsType = {
+  [key: number]: boolean
+}
+export const SelectFilter = (type: string, value: string, currentFilter: any, dispatch: any, filters: any, id: number, requestPlayerEvents: EventsType, serverEventData: any, serverCoordinatesData: any, polygonsData: any, serverData: any) => {
+    if (currentFilter[id] !== type) {
       dispatch.clearFilter({ chartId: id });
       dispatch.clearAllData({ chartId: id });
-      dispatch.setCurrentFilter(type);
+      dispatch.setCurrentFilter({...currentFilter, [id]: type});
     }
 
     const existingFilter = filters.find((filter: any) => filter.type === type);
@@ -24,7 +28,7 @@ export const SelectFilter = (type: string, value: string, currentFilter: string,
 
     switch (type) {
       case 'player':
-        if (requestPlayerEvents) {
+        if (requestPlayerEvents[id]) {
           if (serverEventData.some((elem: any) => elem.id === value)) {
             dispatch.deleteEventsData({ chartId: id, id: value });
           } else {

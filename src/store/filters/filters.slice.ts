@@ -9,9 +9,13 @@ type ChartFiltersType = {
     [chartId: number]: FilterType[]
 }
 
+type CurrentFilterType = {
+    [chartId: number]: string
+}
+
 const initialState = {
     filters: {} as ChartFiltersType,
-    currentFilter: '',
+    currentFilter: {} as CurrentFilterType,
     requestStatus: false
 }
 

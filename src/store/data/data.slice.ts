@@ -36,6 +36,12 @@ export const dataSlice = createSlice({
                 state[chartId].playerCoordsData = state[chartId].playerCoordsData.filter((elem) => elem.id !== id);
             }
         },
+        clearCoordinatesData: (state, action) => {
+            const { chartId } = action.payload;
+            if (state[chartId]) {
+                state[chartId].playerCoordsData = []
+            }
+        },
         /*------------------------------------------------------------------*/
         addEventsData: (state, action) => {
             const { chartId, data } = action.payload;
@@ -54,6 +60,12 @@ export const dataSlice = createSlice({
             const { chartId, id } = action.payload;
             if (state[chartId]) {
                 state[chartId].playerEventsData = state[chartId].playerEventsData.filter((elem) => elem.id !== id);
+            }
+        },
+        clearEventsData: (state, action) => {
+            const { chartId } = action.payload;
+            if (state[chartId]) {
+                state[chartId].playerEventsData = []
             }
         },
         /*------------------------------------------------------------------*/
