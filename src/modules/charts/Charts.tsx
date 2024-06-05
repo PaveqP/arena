@@ -37,10 +37,8 @@ interface ICharts {
 
 const Charts: FC<ICharts> = ({ firstCoord, secondCoord, setFirstCoord, setSecondCoord, requestPlayerEvents, id }) => {
   const serverData: any = useTypedSelector(state => state.data[id]?.finalData || []);
-  const filterType = useTypedSelector(state => state.filters.currentFilter);
 
   const filters = useTypedSelector(state => state.filters.filters[id] || []);
-  // const currentFilter = useTypedSelector(state => state.filters.currentFilter);
 
   const chartRef = useRef<ChartJS>(null);
   const [chartData, setChartData] = useState<ChartData<'bar'>>({

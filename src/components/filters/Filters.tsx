@@ -3,6 +3,8 @@ import './Filters.scss';
 import axios from 'axios';
 import { useActions } from '../../hooks/useActions';
 import { useTypedSelector } from '../../hooks/useTypedSelector';
+import { ConfigurateData } from './ConfigurateData';
+import { SelectFilter } from './SelectFilters';
 import { getPlayerCoordinates, getPlayerEvents, getPolygons, getServer } from '../../api/player/PlayersData';
 
 type CoordType = {
@@ -43,61 +45,6 @@ const Filters: FC<IFilter> = ({ firstCoord, secondCoord, requestPlayerEvents, se
     }
   };
 
-  const handleSelectFilter = (type: string, value: string) => {
-    if (currentFilter !== type) {
-      dispatch.clearFilter({ chartId: id });
-      dispatch.clearAllData({ chartId: id });
-      dispatch.setCurrentFilter(type);
-    }
-
-    const existingFilter = filters.find(filter => filter.type === type);
-    let newFilters = [];
-
-    if (existingFilter) {
-      if (existingFilter.value.includes(value)) {
-        newFilters = existingFilter.value.filter(val => val !== value);
-      } else {
-        newFilters = [...existingFilter.value, value];
-      }
-    } else {
-      newFilters = [value];
-    }
-
-    dispatch.addFilter({ chartId: id, filter: { type, value: newFilters } });
-
-    switch (type) {
-      case 'player':
-        if (requestPlayerEvents) {
-          if (serverEventData.some((elem) => elem.id === value)) {
-            dispatch.deleteEventsData({ chartId: id, id: value });
-          } else {
-            getPlayerEvents(id, value);
-          }
-        } else {
-          if (serverCoordinatesData.some((elem) => elem.id === value)) {
-            dispatch.deleteCoordinatesData({ chartId: id, id: value });
-          } else {
-            getPlayerCoordinates(id, value);
-          }
-        }
-        break;
-      case 'polygon':
-        if (polygonsData.some((elem) => elem.id === value)) {
-          dispatch.deletePolygonsData({ chartId: id, id: value });
-        } else {
-          getPolygons(id, value);
-        }
-        break;
-      case 'server':
-        if (serverData.some((elem) => elem.id === value)) {
-          dispatch.deleteServerData({ chartId: id, id: value });
-        } else {
-          getServer(id);
-        }
-        break;
-    }
-  };
-
   useEffect(() => {
     getDataDetails();
   }, []);
@@ -108,40 +55,7 @@ const Filters: FC<IFilter> = ({ firstCoord, secondCoord, requestPlayerEvents, se
   }, [requestPlayerEvents]);
 
   useEffect(() => {
-    if (serverCoordinatesData.length > 0) {
-      let chartCoordinatesData: any = [];
-
-      if (firstCoord[id] === 'X') {
-        chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
-          { id: dataElement.id, data: dataElement.data.coordinates.map((el: any, elIndex: number) => [el[0], dataElement.data.timeGameCoordinates[elIndex]]) }
-        ));
-      } else if (firstCoord[id] === 'Y') {
-        chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
-          { id: dataElement.id, data: dataElement.data.coordinates.map((el: any, elIndex: number) => [el[1], dataElement.data.timeGameCoordinates[elIndex]]) }
-        ));
-      } else if (firstCoord[id] === 'Z') {
-        chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
-          { id: dataElement.id, data: dataElement.data.coordinates.map((el: any, elIndex: number) => [el[2], dataElement.data.timeGameCoordinates[elIndex]]) }
-        ));
-      }
-
-      dispatch.setFinalData({ chartId: id, data: chartCoordinatesData });
-    } else if (serverEventData.length > 0) {
-      const chartEventData = serverEventData.map((dataElement: any) => (
-        { id: dataElement.id, data: dataElement.data.event.map((el: any, elId: number) => [el, dataElement.data.timeGameEvents[elId]]) }
-      ));
-      dispatch.setFinalData({ chartId: id, data: chartEventData });
-    } else if (polygonsData.length > 0) {
-      const chartPolygonsData = polygonsData.map((dataElement: any) => (
-        { id: dataElement.id, data: dataElement.data.event.map((el: any, elId: number) => [el, dataElement.data.timeGame[elId]]) }
-      ));
-      dispatch.setFinalData({ chartId: id, data: chartPolygonsData });
-    } else if (serverData.length > 0) {
-      const chartServerData = serverData.map((dataElement: any) => (
-        { id: dataElement.id, data: dataElement.data.event.map((el: any, elId: number) => [el, dataElement.data.timeGame[elId]]) }
-      ));
-      dispatch.setFinalData({ chartId: id, data: chartServerData });
-    }
+    ConfigurateData(id, firstCoord, serverCoordinatesData, serverEventData, polygonsData, serverData, dispatch)
   }, [serverCoordinatesData, serverEventData, polygonsData, serverData, firstCoord, secondCoord, id]);
 
   return (
@@ -161,7 +75,7 @@ const Filters: FC<IFilter> = ({ firstCoord, secondCoord, requestPlayerEvents, se
               players.map((player: string, playerId: number) => (
                 <button
                   className={(filters.some((f: any) => f.type === 'player' && f.value.includes(player)) ? 'content-activeSelectButton' : 'content-selectButton')}
-                  onClick={() => handleSelectFilter('player', player)}
+                  onClick={() => SelectFilter('player', player, currentFilter, dispatch, filters, id, requestPlayerEvents, serverEventData, serverCoordinatesData, polygonsData, serverData)}
                   key={playerId}
                 >
                   {player}
@@ -181,7 +95,7 @@ const Filters: FC<IFilter> = ({ firstCoord, secondCoord, requestPlayerEvents, se
               polygons.map((polygon: string, polygonId: number) => (
                 <button
                   className={(filters.some((f: any) => f.type === 'polygon' && f.value.includes(polygon)) ? 'content-activeSelectButton' : 'content-selectButton')}
-                  onClick={() => handleSelectFilter('polygon', polygon)}
+                  onClick={() => SelectFilter('polygon', polygon, currentFilter, dispatch, filters, id, requestPlayerEvents, serverEventData, serverCoordinatesData, polygonsData, serverData)}
                   key={polygonId}
                 >
                   {polygon}
@@ -201,7 +115,7 @@ const Filters: FC<IFilter> = ({ firstCoord, secondCoord, requestPlayerEvents, se
               {server &&
                 <button
                   className={filters.some((f: any) => f.type === 'server' && f.value.includes(server)) ? 'content-activeSelectButton' : 'content-selectButton'}
-                  onClick={() => handleSelectFilter('server', server)}
+                  onClick={() => SelectFilter('server', server, currentFilter, dispatch, filters, id, requestPlayerEvents, serverEventData, serverCoordinatesData, polygonsData, serverData)}
                 >
                   Отобразить данные сервера
                 </button>

@@ -26,11 +26,6 @@ function App() {
     });
   }
 
-  console.log(firstCoord)
-
-  console.log(firstCoord)
-  console.log(secondCoord)
-
   return (
     <div className="App">
       <Header/>
