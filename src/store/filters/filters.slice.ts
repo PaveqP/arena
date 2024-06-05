@@ -1,12 +1,16 @@
-import { createSlice, current } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 
-type filterType = {
+type FilterType = {
     type: string,
-    value: Array<string>
+    value: string[]
+}
+
+type ChartFiltersType = {
+    [chartId: number]: FilterType[]
 }
 
 const initialState = {
-    filter: [] as Array<filterType>,
+    filters: {} as ChartFiltersType,
     currentFilter: '',
     requestStatus: false
 }
@@ -16,18 +20,36 @@ export const filterSlice = createSlice({
     initialState,
     reducers: {
         addFilter: (state, action) => {
-            state.filter = [action.payload]
+            const { chartId, filter } = action.payload;
+            if (!state.filters[chartId]) {
+                state.filters[chartId] = [filter];
+            } else {
+                // Find if the filter type already exists for this chartId
+                const filterIndex = state.filters[chartId].findIndex(f => f.type === filter.type);
+                if (filterIndex > -1) {
+                    // Update the existing filter values
+                    state.filters[chartId][filterIndex].value = filter.value;
+                } else {
+                    // Add new filter type for this chartId
+                    state.filters[chartId].push(filter);
+                }
+            }
         },
-        clearFilter: (state) => {
-            state.filter = []
+        clearFilter: (state, action) => {
+            const { chartId } = action.payload;
+            state.filters[chartId] = [];
+        },
+        clearAllFilters: (state) => {
+            state.filters = {};
         },
         setCurrentFilter: (state, action) => {
-            state.currentFilter = action.payload
+            state.currentFilter = action.payload;
         },
         setRequestStatus: (state, action) => {
-            state.requestStatus = action.payload
+            state.requestStatus = action.payload;
         }
     }
 })
 
-export const {actions, reducer} = filterSlice
+export const { actions, reducer } = filterSlice;
+

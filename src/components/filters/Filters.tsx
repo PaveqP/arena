@@ -1,258 +1,217 @@
-import React, { FC, useEffect, useState } from 'react'
-import './Filters.scss'
-import { Charts } from '../../modules'
-import axios from 'axios'
-import { useActions } from '../../hooks/useActions'
-import { useTypedSelector } from '../../hooks/useTypedSelector'
-import { getPlayerCoordinates, getPlayerEvents, getPolygons, getServer } from '../../api/player/PlayersData'
+import React, { FC, useEffect, useState } from 'react';
+import './Filters.scss';
+import axios from 'axios';
+import { useActions } from '../../hooks/useActions';
+import { useTypedSelector } from '../../hooks/useTypedSelector';
+import { getPlayerCoordinates, getPlayerEvents, getPolygons, getServer } from '../../api/player/PlayersData';
 
-interface IFilter{
-    firstCoord: string
-    secondCoord: string
-    requestPlayerEvents: boolean
-    setRequestPlyaerEvents: (requestPlayerEvents: boolean) => void
-    id: number
+type CoordType = {
+    [key: number]: string
+  }
+
+interface IFilter {
+  firstCoord: CoordType;
+  secondCoord: string;
+  requestPlayerEvents: boolean;
+  setRequestPlyaerEvents: (requestPlayerEvents: boolean) => void;
+  id: number; 
 }
 
-const Filters: FC<IFilter> = ({firstCoord, secondCoord, requestPlayerEvents, setRequestPlyaerEvents, id}) => {
+const Filters: FC<IFilter> = ({ firstCoord, secondCoord, requestPlayerEvents, setRequestPlyaerEvents, id }) => {
+  const filters = useTypedSelector(state => state.filters.filters[id] || []);
+  const currentFilter = useTypedSelector(state => state.filters.currentFilter);
 
-    const filters = useTypedSelector(state => state.filters.filter)
-    const serverCoordinatesData = useTypedSelector(state => state.data.playerCoordsData)
-    const serverEventData = useTypedSelector(state => state.data.playerEventsData)
-    const polygonsData = useTypedSelector(state => state.data.polygonsData)
-    const serverData = useTypedSelector(state => state.data.serverData)
-    const currentFilter = useTypedSelector(state => state.filters.currentFilter)
+  const serverCoordinatesData = useTypedSelector(state => state.data[id]?.playerCoordsData || []);
+  const serverEventData = useTypedSelector(state => state.data[id]?.playerEventsData || []);
+  const polygonsData = useTypedSelector(state => state.data[id]?.polygonsData || []);
+  const serverData = useTypedSelector(state => state.data[id]?.serverData || []);
 
-    const [teams, setTeams] = useState([])
-    const [players, setPlayers] = useState([])
-    const [polygons, setPolygons] = useState([])
-    const [server, setServer] = useState('')
+  const [players, setPlayers] = useState<string[]>([]);
+  const [polygons, setPolygons] = useState<string[]>([]);
+  const [server, setServer] = useState<string>('');
 
-    const dispatch = useActions()
+  const dispatch = useActions();
 
-    console.log(currentFilter)
+  const getDataDetails = async () => {
+    try {
+      const response = await axios.get('http://127.0.0.1:5000/description');
+      setServer(response.data.Server);
+      setPlayers(response.data.descriptionPlayers.numPlayer);
+      setPolygons(response.data.descriptionPolygons.numPolygon);
+    } catch (error: any) {
+      throw new Error(error);
+    }
+  };
 
-    const getDataDetails = async () => {
-        try {
-            const response = await axios.get('http://127.0.0.1:5000/description')
-            setServer(response.data.Server)
-            setPlayers(response.data.descriptionPlayers.numPlayer)
-            setPolygons(response.data.descriptionPolygons.numPolygon)
-        } catch (error: any) {
-            throw new Error(error)
-        }
+  const handleSelectFilter = (type: string, value: string) => {
+    if (currentFilter !== type) {
+      dispatch.clearFilter({ chartId: id });
+      dispatch.clearAllData({ chartId: id });
+      dispatch.setCurrentFilter(type);
     }
 
-    const handleSelectFilter = (type: string, value: string) => {
-        if (currentFilter !== type){
-            dispatch.clearFilter()
-            dispatch.clearAllData()
-            dispatch.setCurrentFilter(type)
-        }
-        dispatch.setCurrentFilter(type)
-        let prevType = filters.length > 0 && filters[0].type 
-        let prevFilters: Array<string> = filters.length > 0 ? [...filters[0].value] : []
-        let newFilters = []
+    const existingFilter = filters.find(filter => filter.type === type);
+    let newFilters = [];
 
-        switch(type){
-            case 'player':
-                if (requestPlayerEvents){
-                    if(serverEventData.some((elem) => elem.id === value))
-                    {
-                        dispatch.deleteEventsData(value)
-                    } 
-                    else 
-                    {
-                        getPlayerEvents(value)
-                    }
-                    
-                    if (prevType !== type){
-                        prevFilters = []
-                    }
-                } else {
-                    if(serverCoordinatesData.some((elem) => elem.id === value))
-                    {
-                        dispatch.deleteCoordinatesData(value)
-                    } 
-                    else 
-                    {
-                        getPlayerCoordinates(value)
-                    }
-                
-                    if (prevType !== type){
-                        prevFilters = []
-                    }
-                }
-                break
-            case 'polygon':
-                if(polygonsData.some((elem) => elem.id === value))
-                    {
-                        dispatch.deletePolygonsData(value)
-                    } 
-                    else 
-                    {
-                        getPolygons(value)
-                    }
-                    if (prevType !== type){
-                        prevFilters = []
-                    }
-                break
-            case 'server':
-                if(serverData.some((elem) => elem.id === value))
-                    {
-                        dispatch.deleteServerData(value)
-                    } 
-                    else 
-                    {
-                        getServer()
-                    }
-                    if (prevType !== type){
-                        prevFilters = []
-                    }
-        }
-        
-
-        if (prevFilters.includes(value)){
-            newFilters = prevFilters.filter((val) => val !== value)
-        } else{
-            newFilters = [...prevFilters, value]
-        }
-
-        console.log('dispatched')
-        dispatch.addFilter({type, "value": newFilters})
+    if (existingFilter) {
+      if (existingFilter.value.includes(value)) {
+        newFilters = existingFilter.value.filter(val => val !== value);
+      } else {
+        newFilters = [...existingFilter.value, value];
+      }
+    } else {
+      newFilters = [value];
     }
 
-    useEffect(() => {
-        getDataDetails()
-    }, [])
+    dispatch.addFilter({ chartId: id, filter: { type, value: newFilters } });
 
-    useEffect(() => {
-        dispatch.clearFilter()
-        dispatch.clearAllData()
-    }, [requestPlayerEvents])
-
-    useEffect(() => {
-        if (serverCoordinatesData.length > 0){
-            // dispatch.setFinalData(serverCoordinatesData)
-            let chartCoordinatesData: any = []
-
-            if (firstCoord === 'X'){
-                console.log(serverCoordinatesData)
-                chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
-                    // console.log(dataElement)
-                    {id: dataElement.id, data: dataElement.data.coordinates.map((el: any, elIndex: number) => 
-                        [el[0], dataElement.data.timeGameCoordinates[elIndex]]
-                    )}
-                ))
-            } else if (firstCoord === 'Y'){
-                chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
-                    {id: dataElement.id, data: dataElement.data.coordinates.map((el: any, elIndex: number) => 
-                        [el[1], dataElement.data.timeGameCoordinates[elIndex]]
-                    )}
-                ))
-            } else if (firstCoord === 'Z'){
-                chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
-                    {id: dataElement.id, data: dataElement.data.coordinates.map((el: any, elIndex: number) => 
-                        [el[2], dataElement.data.timeGameCoordinates[elIndex]]
-                    )}
-                ))
-            } 
-            dispatch.setFinalData(chartCoordinatesData)
-        } else if (serverEventData.length > 0){
-            let chartEventData: any = []
-            chartEventData = serverEventData.map((dataElement: any) => (
-                {id: dataElement.id, data: dataElement.data.event.map((el: any, elId: number) => 
-                    [el, dataElement.data.timeGameEvents[elId]]
-                )}
-            ))
-            dispatch.setFinalData(chartEventData)
-        } else if (polygonsData.length > 0){
-            let chartPolygonsData: any = []
-            chartPolygonsData = polygonsData.map((dataElement: any) => (
-                {id: dataElement.id, data: dataElement.data.event.map((el: any, elId: number) => 
-                    [el, dataElement.data.timeGame[elId]]
-                )}
-            ))
-            dispatch.setFinalData(chartPolygonsData)
-        } else if (serverData.length > 0){
-            let chartServerData: any = []
-            chartServerData = serverData.map((dataElement: any) => (
-                {id: dataElement.id, data: dataElement.data.event.map((el: any, elId: number) => 
-                    [el, dataElement.data.timeGame[elId]]
-                )}
-            ))
-            dispatch.setFinalData(chartServerData)
+    switch (type) {
+      case 'player':
+        if (requestPlayerEvents) {
+          if (serverEventData.some((elem) => elem.id === value)) {
+            dispatch.deleteEventsData({ chartId: id, id: value });
+          } else {
+            getPlayerEvents(id, value);
+          }
+        } else {
+          if (serverCoordinatesData.some((elem) => elem.id === value)) {
+            dispatch.deleteCoordinatesData({ chartId: id, id: value });
+          } else {
+            getPlayerCoordinates(id, value);
+          }
         }
-    }, [serverCoordinatesData, serverEventData, polygonsData, serverData, firstCoord, secondCoord])
+        break;
+      case 'polygon':
+        if (polygonsData.some((elem) => elem.id === value)) {
+          dispatch.deletePolygonsData({ chartId: id, id: value });
+        } else {
+          getPolygons(id, value);
+        }
+        break;
+      case 'server':
+        if (serverData.some((elem) => elem.id === value)) {
+          dispatch.deleteServerData({ chartId: id, id: value });
+        } else {
+          getServer(id);
+        }
+        break;
+    }
+  };
+
+  useEffect(() => {
+    getDataDetails();
+  }, []);
+
+  useEffect(() => {
+    dispatch.clearFilter({ chartId: id });
+    dispatch.clearAllData({ chartId: id });
+  }, [requestPlayerEvents]);
+
+  useEffect(() => {
+    if (serverCoordinatesData.length > 0) {
+      let chartCoordinatesData: any = [];
+
+      if (firstCoord[id] === 'X') {
+        chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
+          { id: dataElement.id, data: dataElement.data.coordinates.map((el: any, elIndex: number) => [el[0], dataElement.data.timeGameCoordinates[elIndex]]) }
+        ));
+      } else if (firstCoord[id] === 'Y') {
+        chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
+          { id: dataElement.id, data: dataElement.data.coordinates.map((el: any, elIndex: number) => [el[1], dataElement.data.timeGameCoordinates[elIndex]]) }
+        ));
+      } else if (firstCoord[id] === 'Z') {
+        chartCoordinatesData = serverCoordinatesData.map((dataElement: any) => (
+          { id: dataElement.id, data: dataElement.data.coordinates.map((el: any, elIndex: number) => [el[2], dataElement.data.timeGameCoordinates[elIndex]]) }
+        ));
+      }
+
+      dispatch.setFinalData({ chartId: id, data: chartCoordinatesData });
+    } else if (serverEventData.length > 0) {
+      const chartEventData = serverEventData.map((dataElement: any) => (
+        { id: dataElement.id, data: dataElement.data.event.map((el: any, elId: number) => [el, dataElement.data.timeGameEvents[elId]]) }
+      ));
+      dispatch.setFinalData({ chartId: id, data: chartEventData });
+    } else if (polygonsData.length > 0) {
+      const chartPolygonsData = polygonsData.map((dataElement: any) => (
+        { id: dataElement.id, data: dataElement.data.event.map((el: any, elId: number) => [el, dataElement.data.timeGame[elId]]) }
+      ));
+      dispatch.setFinalData({ chartId: id, data: chartPolygonsData });
+    } else if (serverData.length > 0) {
+      const chartServerData = serverData.map((dataElement: any) => (
+        { id: dataElement.id, data: dataElement.data.event.map((el: any, elId: number) => [el, dataElement.data.timeGame[elId]]) }
+      ));
+      dispatch.setFinalData({ chartId: id, data: chartServerData });
+    }
+  }, [serverCoordinatesData, serverEventData, polygonsData, serverData, firstCoord, secondCoord, id]);
 
   return (
     <div className='filters'>
-        <div className="filters-number">
-            {id}
-        </div>
-        <div className="filters__row">
+      <div className="filters-number">
+        {id}
+      </div>
+      <div className="filters__row">
         <div className="filters__players">
-                <div className="filters-filter">
-                    Игроки
-                    events
-                    <input type="checkbox" checked={requestPlayerEvents} onChange={() => setRequestPlyaerEvents(!requestPlayerEvents)}/>
-                </div>
-                <div className="filters-content">
-                    {players.length > 0 ?
-                    players.map((player: string, playerId: number) => (
-                        <button 
-                            className={(filters[0] && filters[0].type === 'player' && filters[0].value.includes(player)) ? 'content-activeSelectButton' : 'content-selectButton'} 
-                            onClick={() => handleSelectFilter('player', player)}
-                            key={playerId}
-                        >
-                            {player}
-                        </button>
-                    )) 
-                    :
-                    <p>Игроки не найдены</p>
-                    }
-                </div>
-            </div>
-            <div className="filters__polygons">
-                <div className="filters-filter">
-                    Полигоны
-                </div>
-                <div className="filters-content">
-                    {polygons.length > 0 ?
-                    polygons.map((polygon: string, polygonId: number) => (
-                        <button 
-                            className={(filters[0] && filters[0].type === 'polygon' && filters[0].value.includes(polygon)) ? 'content-activeSelectButton' : 'content-selectButton'} 
-                            onClick={() => handleSelectFilter('polygon', polygon)}
-                            key={polygonId}
-                        >
-                            {polygon}
-                        </button>
-                    )) 
-                    :
-                    <p>Полигоны не найдены</p>
-                    }
-                </div>
-            </div>
-            <div className="filters__teams">
-                <div className="filters-filter">
-                    Сервер
-                </div>
-                {
-                <div className="filters-content">
-                    {server &&
-                        <button 
-                            className={filters[0] && filters[0].type === 'server' ? 'content-activeSelectButton' : 'content-selectButton'} 
-                            onClick={() => handleSelectFilter('server', server)}
-                        >
-                            Отобразить данные сервера
-                        </button>
-                    }
-                </div>
-                }
-            </div>
+          <div className="filters-filter">
+            Игроки
+            events
+            <input type="checkbox" checked={requestPlayerEvents} onChange={() => setRequestPlyaerEvents(!requestPlayerEvents)} />
+          </div>
+          <div className="filters-content">
+            {players.length > 0 ?
+              players.map((player: string, playerId: number) => (
+                <button
+                  className={(filters.some((f: any) => f.type === 'player' && f.value.includes(player)) ? 'content-activeSelectButton' : 'content-selectButton')}
+                  onClick={() => handleSelectFilter('player', player)}
+                  key={playerId}
+                >
+                  {player}
+                </button>
+              ))
+              :
+              <p>Игроки не найдены</p>
+            }
+          </div>
         </div>
+        <div className="filters__polygons">
+          <div className="filters-filter">
+            Полигоны
+          </div>
+          <div className="filters-content">
+            {polygons.length > 0 ?
+              polygons.map((polygon: string, polygonId: number) => (
+                <button
+                  className={(filters.some((f: any) => f.type === 'polygon' && f.value.includes(polygon)) ? 'content-activeSelectButton' : 'content-selectButton')}
+                  onClick={() => handleSelectFilter('polygon', polygon)}
+                  key={polygonId}
+                >
+                  {polygon}
+                </button>
+              ))
+              :
+              <p>Полигоны не найдены</p>
+            }
+          </div>
+        </div>
+        <div className="filters__teams">
+          <div className="filters-filter">
+            Сервер
+          </div>
+          {
+            <div className="filters-content">
+              {server &&
+                <button
+                  className={filters.some((f: any) => f.type === 'server' && f.value.includes(server)) ? 'content-activeSelectButton' : 'content-selectButton'}
+                  onClick={() => handleSelectFilter('server', server)}
+                >
+                  Отобразить данные сервера
+                </button>
+              }
+            </div>
+          }
+        </div>
+      </div>
     </div>
-  )
-}
+  );
+};
 
-export {Filters}
+export { Filters };
