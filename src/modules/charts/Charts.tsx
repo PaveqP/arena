@@ -51,8 +51,6 @@ const Charts: FC<ICharts> = ({ firstCoord, secondCoord, setFirstCoord, setSecond
 
   const labels = serverData.length > 0 && serverData[0].data.map((pair: any) => pair[1]);
 
-  console.log(filters)
-
   const data = {
     labels,
     datasets: serverData.map((dataSet: any) => ({

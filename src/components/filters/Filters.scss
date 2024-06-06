@@ -8,7 +8,7 @@
         margin-right: 11px;
         width: 23px;
         // height: calc(100% - 60px);
-        height: 470px;
+        height: 540px;
         background-color: rgba($color: #1C111F, $alpha: 0.2);
         color: #FEFEFE;
         border-top-left-radius: 10px;
@@ -43,6 +43,29 @@
         padding: 10px;
         font-size: 20px;
         text-align: left;
+    }
+
+    &-deleteChart{
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        background-color: #ff541b;
+        color: white;
+        width: 350px;
+        padding: 10px;
+        font-size: 20px;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    &-deleteChart:hover{
+        scale: 0.98;
+        transition: 0.3s;
+    }
+
+    &-deleteChart:not(:hover){
+        scale: 1;
+        transition: 0.3s;
     }
 
     &-content{

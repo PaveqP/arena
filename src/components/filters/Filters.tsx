@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useActions } from '../../hooks/useActions';
 import { useTypedSelector } from '../../hooks/useTypedSelector';
 import { ConfigurateData } from './ConfigurateData';
+import { DeleteIcon } from '../../ui';
 import { SelectFilter } from './SelectFilters';
 
 type CoordType = {
@@ -20,9 +21,11 @@ interface IFilter {
   requestPlayerEvents: EventsType;
   setRequestPlyaerEvents: (requestPlayerEvents: EventsType) => void;
   id: number; 
+  prettyId: number
+  deleteChart: (id: number) => void
 }
 
-const Filters: FC<IFilter> = ({ firstCoord, secondCoord, requestPlayerEvents, setRequestPlyaerEvents, id }) => {
+const Filters: FC<IFilter> = ({ firstCoord, secondCoord, requestPlayerEvents, setRequestPlyaerEvents, id, prettyId, deleteChart }) => {
   const filters = useTypedSelector(state => state.filters.filters[id] || []);
   const currentFilter = useTypedSelector(state => state.filters.currentFilter);
 
@@ -30,6 +33,8 @@ const Filters: FC<IFilter> = ({ firstCoord, secondCoord, requestPlayerEvents, se
   const serverEventData = useTypedSelector(state => state.data[id]?.playerEventsData || []);
   const polygonsData = useTypedSelector(state => state.data[id]?.polygonsData || []);
   const serverData = useTypedSelector(state => state.data[id]?.serverData || []);
+
+  const finalData = useTypedSelector(state => state.data.finalData)
 
   const [players, setPlayers] = useState<string[]>([]);
   const [polygons, setPolygons] = useState<string[]>([]);
@@ -53,7 +58,7 @@ const Filters: FC<IFilter> = ({ firstCoord, secondCoord, requestPlayerEvents, se
   }, []);
 
   useEffect(() => {
-    dispatch.clearFilter({ chartId: id });
+    dispatch.clearFilter(id);
     if (requestPlayerEvents && serverCoordinatesData){
         dispatch.clearCoordinatesData({ chartId: id })
     } else if (!requestPlayerEvents && serverEventData){
@@ -69,7 +74,7 @@ const Filters: FC<IFilter> = ({ firstCoord, secondCoord, requestPlayerEvents, se
   return (
     <div className='filters'>
       <div className="filters-number">
-        {id}
+        {prettyId}
       </div>
       <div className="filters__row">
         <div className="filters__players">
@@ -130,6 +135,12 @@ const Filters: FC<IFilter> = ({ firstCoord, secondCoord, requestPlayerEvents, se
               }
             </div>
           }
+        </div>
+        <div className="filters__teams">
+          <div className="filters-deleteChart" onClick={() => deleteChart(id)}>
+            <DeleteIcon/>
+            Удалить график
+          </div>
         </div>
       </div>
     </div>

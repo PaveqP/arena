@@ -6,7 +6,7 @@ type EventsType = {
 }
 export const SelectFilter = (type: string, value: string, currentFilter: any, dispatch: any, filters: any, id: number, requestPlayerEvents: EventsType, serverEventData: any, serverCoordinatesData: any, polygonsData: any, serverData: any) => {
     if (currentFilter[id] !== type) {
-      dispatch.clearFilter({ chartId: id });
+      dispatch.clearFilter(id);
       dispatch.clearAllData({ chartId: id });
       dispatch.setCurrentFilter({...currentFilter, [id]: type});
     }

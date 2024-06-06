@@ -40,8 +40,8 @@ export const filterSlice = createSlice({
             }
         },
         clearFilter: (state, action) => {
-            const { chartId } = action.payload;
-            state.filters[chartId] = [];
+            console.log(action.payload)
+            state.filters[action.payload] = [];
         },
         clearAllFilters: (state) => {
             state.filters = {};

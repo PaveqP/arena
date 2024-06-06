@@ -18,16 +18,23 @@ function App() {
   const requestStatus = useTypedSelector(state => state.filters.requestStatus)
 
   const [requestPlayerEvents, setRequestPlyaerEvents] = useState<EventsType>({1: false})
-  const [charts, setCharts] = useState(['chart'])
+  const [charts, setCharts] = useState<number[]>([1])
+
+  const filters = useTypedSelector(state => state.filters.filters);
 
   const [firstCoord, setFirstCoord] = useState<CoordType>({1: 'X'})
   const [secondCoord, setSecondCoord] = useState('Y')
 
-  const handleNewChart = () => {
-    setCharts((charts) => [...charts, 'chart'])
+  const handleNewChart = (id: number) => {
+    setCharts((charts) => [...charts, id])
     setFirstCoord((prevCoords: CoordType) => {
-      return { ...prevCoords, [charts.length + 1]: 'X' };
+      return { ...prevCoords, [id]: 'X' };
     });
+  }
+
+  const deleteChart = (id: number) => {
+    const newCharts = charts.filter((chart) => chart !== id)
+    setCharts(newCharts)
   }
 
   return (
@@ -42,7 +49,9 @@ function App() {
                 secondCoord={secondCoord} 
                 requestPlayerEvents={requestPlayerEvents} 
                 setRequestPlyaerEvents={setRequestPlyaerEvents}
-                id={chartId + 1}
+                id={chart}
+                prettyId={chartId + 1}
+                deleteChart={deleteChart}
               />
               <Charts 
                 firstCoord={firstCoord} 
@@ -50,14 +59,14 @@ function App() {
                 setFirstCoord={setFirstCoord} 
                 setSecondCoord={setSecondCoord} 
                 requestPlayerEvents={requestPlayerEvents}
-                id={chartId + 1}
+                id={chart}
               />
             </div>
           ))
         }
       </div>
       { requestStatus &&
-        <div className="App-addView" onClick={() => handleNewChart()}>
+        <div className="App-addView" onClick={() => handleNewChart(Math.random())}>
           + Добавить отображение
         </div>
       }
