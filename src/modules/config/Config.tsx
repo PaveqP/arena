@@ -38,8 +38,6 @@ const Config:FC = () => {
         postData(data)
     }
 
-	console.log(file.name)
-
   return (
     <div className='config'>
         <p className="config__title">
@@ -48,10 +46,10 @@ const Config:FC = () => {
 		<div className="config__manager">
 			<div className="config__input">
 				<div className='config-offer'>
-					<p>Выберите файл: </p>
-					<p className='config-selectedFile'>{file.name}</p>
+					<label htmlFor={"theinput"}>Выберите файл: </label>
+					<p className='config-selectedFile'>{file && file.name}</p>
 				</div>
-				<input type="file" className="config__upload" onChange={handlePhotoChange}/>
+				<input type="file" id='theinput' className="config__upload" onChange={handlePhotoChange}/>
 			</div>
 			<button className='config__request' onClick={sendData}><Upload/></button>
 			{requestStatus.data &&
