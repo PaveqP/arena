@@ -55,10 +55,11 @@ const Charts: FC<ICharts> = ({ firstCoord, setFirstCoord, requestPlayerEvents, i
       label: dataSet.id,
       data: dataSet.data.map((pair: any) => pair[0]),
       borderColor: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
-      pointRadius: (serverData.length > 0 && !requestPlayerEvents && filters[0].type === 'player') ? 10 : 1,
+      pointRadius: (serverData.length > 0 && !requestPlayerEvents && filters[0] && filters[0].type === 'player') ? 10 
+      : (filters[0] && (filters[0].type === 'polygon' || filters[0].type === 'server')) ? 3 : 1,
       pointHoverRadius: 10,
-      borderWidth: filters[0].type === 'polygon' ? 0 : 2,
-      backgroundColor: filters[0].type === 'polygon' && `#${Math.floor(Math.random() * 16777215).toString(16)}`
+      borderWidth: filters[0] && filters[0].type === 'polygon' ? 0 : 2,
+      backgroundColor: filters[0] && filters[0].type === 'polygon' && `#${Math.floor(Math.random() * 16777215).toString(16)}`
     }))
   };
 

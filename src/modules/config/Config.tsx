@@ -50,11 +50,10 @@ const Config:FC = () => {
 				<div className='config-offer'>
 					<p>Выберите файл: </p>
 					<p className='config-selectedFile'>{file.name}</p>
-					<Upload/>
 				</div>
 				<input type="file" className="config__upload" onChange={handlePhotoChange}/>
 			</div>
-			<button className='config__request' onClick={sendData}>Запросить</button>
+			<button className='config__request' onClick={sendData}><Upload/></button>
 			{requestStatus.data &&
 			<>
 				{requestStatus.data.split(' ')[2] === 'failed' ?
