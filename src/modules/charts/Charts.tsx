@@ -54,7 +54,11 @@ const Charts: FC<ICharts> = ({ firstCoord, setFirstCoord, requestPlayerEvents, i
     datasets: serverData.map((dataSet: any) => ({
       label: dataSet.id,
       data: dataSet.data.map((pair: any) => pair[0]),
-      borderColor: `#${Math.floor(Math.random() * 16777215).toString(16)}`
+      borderColor: `#${Math.floor(Math.random() * 16777215).toString(16)}`,
+      pointRadius: (serverData.length > 0 && !requestPlayerEvents && filters[0].type === 'player') ? 10 : 1,
+      pointHoverRadius: 10,
+      borderWidth: filters[0].type === 'polygon' ? 0 : 2,
+      backgroundColor: filters[0].type === 'polygon' && `#${Math.floor(Math.random() * 16777215).toString(16)}`
     }))
   };
 
@@ -88,7 +92,7 @@ const Charts: FC<ICharts> = ({ firstCoord, setFirstCoord, requestPlayerEvents, i
 
   return (
     <div className="charts">
-      <Chart ref={chartRef} type='line' data={chartData && chartData} className='charts__chart'/>
+      <Chart ref={chartRef} type='line' data={chartData && chartData} className='charts__chart' />
       {serverData.length > 0 && filters[0] && !requestPlayerEvents[id] && filters[0].type === 'player' &&
         <div className="charts__inputs">
           <div className="inputs__OX">
