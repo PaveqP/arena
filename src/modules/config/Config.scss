@@ -15,6 +15,7 @@
     }
 
     &__input{
+        cursor: pointer;
         position: relative;
         background-color: #FF6D1B;
         border-radius: 5px;
@@ -24,16 +25,32 @@
     }
 
     input[type=file]{
+        cursor: pointer;
         width: 100%;
         opacity: 0;
     }
 
     &-offer{
+        width: 100%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         position: absolute;
-        top: 8px;
-        left: 16px;
+        top: 4px;
+        left: 0px;
+        padding-right: 10px;
+        padding-left: 10px;
         font-size: 15;
         color: #FEFEFE;
+    }
+
+    &-selectedFile{
+        max-width: 80px;
+        text-decoration: underline;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     &__manager{

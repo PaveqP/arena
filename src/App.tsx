@@ -20,19 +20,22 @@ function App() {
   const [requestPlayerEvents, setRequestPlyaerEvents] = useState<EventsType>({1: false})
   const [charts, setCharts] = useState<number[]>([1])
 
-  const filters = useTypedSelector(state => state.filters.filters);
-
   const [firstCoord, setFirstCoord] = useState<CoordType>({1: 'X'})
-  const [secondCoord, setSecondCoord] = useState('Y')
 
   const handleNewChart = (id: number) => {
     setCharts((charts) => [...charts, id])
     setFirstCoord((prevCoords: CoordType) => {
       return { ...prevCoords, [id]: 'X' };
     });
+    setRequestPlyaerEvents((prevCoords: EventsType) => {
+      return { ...prevCoords, [id]: false };
+    });
   }
 
-  const deleteChart = (id: number) => {
+  const deleteChart = (id: number, prettyId: number) => {
+    // eslint-disable-next-line no-restricted-globals
+    const isConfirm = confirm(`Удалить график ${prettyId}?`)
+    if (!isConfirm) return
     const newCharts = charts.filter((chart) => chart !== id)
     setCharts(newCharts)
   }
@@ -46,7 +49,6 @@ function App() {
             <div className="App__filter" key={chartId}>
               <Filters 
                 firstCoord={firstCoord} 
-                secondCoord={secondCoord} 
                 requestPlayerEvents={requestPlayerEvents} 
                 setRequestPlyaerEvents={setRequestPlyaerEvents}
                 id={chart}
@@ -55,9 +57,7 @@ function App() {
               />
               <Charts 
                 firstCoord={firstCoord} 
-                secondCoord={secondCoord} 
                 setFirstCoord={setFirstCoord} 
-                setSecondCoord={setSecondCoord} 
                 requestPlayerEvents={requestPlayerEvents}
                 id={chart}
               />

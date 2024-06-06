@@ -32,14 +32,12 @@ type EventsType = {
 
 interface ICharts {
   firstCoord: CoordType;
-  secondCoord: string;
   setFirstCoord: any;
-  setSecondCoord: (secondCoord: string) => void;
   requestPlayerEvents: EventsType;
   id: any
 }
 
-const Charts: FC<ICharts> = ({ firstCoord, secondCoord, setFirstCoord, setSecondCoord, requestPlayerEvents, id }) => {
+const Charts: FC<ICharts> = ({ firstCoord, setFirstCoord, requestPlayerEvents, id }) => {
   const serverData: any = useTypedSelector(state => state.data[id]?.finalData || []);
 
   const filters = useTypedSelector(state => state.filters.filters[id] || []);
@@ -86,10 +84,12 @@ const Charts: FC<ICharts> = ({ firstCoord, secondCoord, setFirstCoord, setSecond
     }
   }, [serverData]);
 
+  console.log(serverData.length > 0 && !requestPlayerEvents && filters[0].type === 'player')
+
   return (
     <div className="charts">
-      <Chart ref={chartRef} type='line' data={chartData} className='charts__chart'/>
-      {serverData.length > 0 && !requestPlayerEvents && filters[0].type === 'player' &&
+      <Chart ref={chartRef} type='line' data={chartData && chartData} className='charts__chart'/>
+      {serverData.length > 0 && filters[0] && !requestPlayerEvents[id] && filters[0].type === 'player' &&
         <div className="charts__inputs">
           <div className="inputs__OX">
             <p className='inputs-placeholder'>OX:</p>
@@ -101,7 +101,7 @@ const Charts: FC<ICharts> = ({ firstCoord, secondCoord, setFirstCoord, setSecond
           </div>
           <div className="inputs__OY">
             <p className='inputs-placeholder'>OY:</p>
-            <select value={secondCoord} onChange={(e) => setSecondCoord(e.target.value)}>
+            <select value={'Time Game'}>
               <option value="X">Time Game</option>
             </select>
           </div>

@@ -17,15 +17,14 @@ type EventsType = {
 
 interface IFilter {
   firstCoord: CoordType;
-  secondCoord: string;
   requestPlayerEvents: EventsType;
   setRequestPlyaerEvents: (requestPlayerEvents: EventsType) => void;
   id: number; 
   prettyId: number
-  deleteChart: (id: number) => void
+  deleteChart: (id: number, prettyId: number) => void
 }
 
-const Filters: FC<IFilter> = ({ firstCoord, secondCoord, requestPlayerEvents, setRequestPlyaerEvents, id, prettyId, deleteChart }) => {
+const Filters: FC<IFilter> = ({ firstCoord, requestPlayerEvents, setRequestPlyaerEvents, id, prettyId, deleteChart }) => {
   const filters = useTypedSelector(state => state.filters.filters[id] || []);
   const currentFilter = useTypedSelector(state => state.filters.currentFilter);
 
@@ -69,7 +68,7 @@ const Filters: FC<IFilter> = ({ firstCoord, secondCoord, requestPlayerEvents, se
 
   useEffect(() => {
     ConfigurateData(id, firstCoord, serverCoordinatesData, serverEventData, polygonsData, serverData, dispatch)
-  }, [serverCoordinatesData, serverEventData, polygonsData, serverData, firstCoord, secondCoord, id]);
+  }, [serverCoordinatesData, serverEventData, polygonsData, serverData, firstCoord, id]);
 
   return (
     <div className='filters'>
@@ -137,7 +136,7 @@ const Filters: FC<IFilter> = ({ firstCoord, secondCoord, requestPlayerEvents, se
           }
         </div>
         <div className="filters__teams">
-          <div className="filters-deleteChart" onClick={() => deleteChart(id)}>
+          <div className="filters-deleteChart" onClick={() => deleteChart(id, prettyId)}>
             <DeleteIcon/>
             Удалить график
           </div>

@@ -1,21 +1,15 @@
 import React, { useState, FC } from 'react'
-import { Filters } from '../../components'
 import './Config.scss'
 import axios from 'axios'
-import { useTypedSelector } from '../../hooks/useTypedSelector'
 import { useActions } from '../../hooks/useActions'
-import { Success, Error } from '../../ui'
+import { Success, Error, Upload } from '../../ui'
 
 const Config:FC = () => {
 
-	const [file, setFile] = useState('')
+	const [file, setFile] = useState<any>('')
 	const [requestStatus, setRequestStatus] = useState<any>('')
 
-	const filter = useTypedSelector(state => state.filters.currentFilter)
-
 	const dispatch = useActions()
-
-	console.log(filter)
 
 	const handlePhotoChange = (e: any) => {
         setFile(e.target.files[0])
@@ -34,7 +28,6 @@ const Config:FC = () => {
 			}
 		} catch (error: any) {
 			setRequestStatus('Ошибка')
-			//throw new Error(error)
 		}
 	}
 
@@ -45,6 +38,8 @@ const Config:FC = () => {
         postData(data)
     }
 
+	console.log(file.name)
+
   return (
     <div className='config'>
         <p className="config__title">
@@ -52,37 +47,28 @@ const Config:FC = () => {
 		</p>
 		<div className="config__manager">
 			<div className="config__input">
-				<p className='config-offer'>Выберите файл</p>
+				<div className='config-offer'>
+					<p>Выберите файл: </p>
+					<p className='config-selectedFile'>{file.name}</p>
+					<Upload/>
+				</div>
 				<input type="file" className="config__upload" onChange={handlePhotoChange}/>
 			</div>
 			<button className='config__request' onClick={sendData}>Запросить</button>
 			{requestStatus.data &&
 			<>
-			{requestStatus.data.split(' ')[2] === 'failed' ?
-				<div className={'config__bad'}>
-					<Error/>
-				</div>
-				 :
-				<div className={'config__ok'}>
-					<Success/>
-				</div> 
-			}
-				{/* {
-					requestStatus.data.split(' ')[2] !== 'failed' && <Filters />
-				} */}
+				{requestStatus.data.split(' ')[2] === 'failed' ?
+					<div className={'config__bad'}>
+						<Error/>
+					</div>
+					:
+					<div className={'config__ok'}>
+						<Success/>
+					</div> 
+				}
 			</>
 			}	
 		</div>
-		{/* {requestStatus.data &&
-			<>
-				<div className={requestStatus.data.split(' ')[2] === 'failed' ? 'config__bad' : 'config__ok'}>
-					{requestStatus.data}
-				</div>
-				{
-					requestStatus.data.split(' ')[2] !== 'failed' && <Filters />
-				}
-			</>
-		}	 */}
     </div>
   )
 }
